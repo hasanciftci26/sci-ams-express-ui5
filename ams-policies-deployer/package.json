@@ -1,0 +1,5 @@
+{
+    "name": "express-ams-policies-deployer",
+    "version": "0.0.1",
+    "description": "SAP Cloud Identity Services AMS Policies Deployer Module"
+}
