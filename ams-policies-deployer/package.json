@@ -1,5 +1,11 @@
 {
     "name": "express-ams-policies-deployer",
     "version": "0.0.1",
-    "description": "SAP Cloud Identity Services AMS Policies Deployer Module"
+    "description": "SAP Cloud Identity Services AMS Policies Deployer Module",
+    "dependencies": {
+        "@sap/ams": "^3.10.0"
+    },
+    "scripts": {
+        "start": "deploy-dcl"
+    }
 }

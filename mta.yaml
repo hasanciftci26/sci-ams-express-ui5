@@ -1,0 +1,57 @@
+_schema-version: 3.3.0
+ID: sci-ams-express-ui5
+version: 0.0.1
+description: "SAP Cloud Identity Services AMS Express.js Sample Application"
+
+# ──────────────────────────────────────────────────────────── Build Parameters ────────────────────────────────────────────────────────────
+
+parameters:
+  #deploy_mode: html5-repo
+  enable-parallel-deployments: true
+# build-parameters:
+#   before-all:
+#     - builder: custom
+#       commands:
+#         - npm ci
+#         - npx cds build --production
+#         - npm run build-ts
+
+# ──────────────────────────────────────────────────────────────── Modules ─────────────────────────────────────────────────────────────────
+
+modules:
+
+# ──────────────────── SAP Cloud Identity Services AMS Policies Deployer Module ────────────────────
+  - name: express-ams-policies-deployer
+    type: javascript.nodejs
+    path: ams-policies-deployer
+    parameters:
+      buildpack: nodejs_buildpack
+      no-route: true
+      no-start: true
+      tasks:
+        - name: deploy-dcl
+          command: npm start
+          memory: 512M
+    requires:
+      - name: sci-ams-express-ui5-ias
+        parameters:
+          config:
+            credential-type: X509_GENERATED
+            app-identifier: policy-deployer
+
+# ─────────────────────────────────────────────────────────────── Resources ────────────────────────────────────────────────────────────────
+
+resources:
+
+# ────────────────────────────── SAP Cloud Identity Services Instance ──────────────────────────────
+  - name: sci-ams-express-ui5-ias
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: identity
+      service-name: sci-ams-express-ui5-ias
+      service-plan: application
+      config:
+        authorization: 
+          enabled: true
+          value-help-url: ""
+          value-help-api-name: ""
