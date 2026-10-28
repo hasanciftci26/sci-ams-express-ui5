@@ -6,6 +6,11 @@
         "@sap/ams": "^3.10.0"
     },
     "scripts": {
-        "start": "deploy-dcl"
+        "start": "deploy-dcl",
+        "local-start": "dotenv run -- deploy-dcl"
+    },
+    "devDependencies": {
+        "@sap/ams-dev": "^3.0.2",
+        "dotenv": "^18.0.9"
     }
 }

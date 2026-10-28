@@ -26,12 +26,15 @@ modules:
     path: ams-policies-deployer
     parameters:
       buildpack: nodejs_buildpack
+      memory: 512M
+      disk-quota: 256M
       no-route: true
       no-start: true
       tasks:
         - name: deploy-dcl
           command: npm start
           memory: 512M
+          disk-quota: 256M
     requires:
       - name: sci-ams-express-ui5-ias
         parameters:
@@ -50,8 +53,4 @@ resources:
       service: identity
       service-name: sci-ams-express-ui5-ias
       service-plan: application
-      config:
-        authorization: 
-          enabled: true
-          value-help-url: ""
-          value-help-api-name: ""
+      path: ./ias-config.json
