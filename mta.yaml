@@ -42,6 +42,21 @@ modules:
             credential-type: X509_GENERATED
             app-identifier: policy-deployer
 
+# ─────────────────────────────────── Express.js Backend Module ────────────────────────────────────
+  - name: express-service
+    type: nodejs
+    path: service
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build
+      build-result: dist            
+
 # ─────────────────────────────────────────────────────────────── Resources ────────────────────────────────────────────────────────────────
 
 resources:

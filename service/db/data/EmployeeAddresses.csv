@@ -1,0 +1,11 @@
+employeeID,addressID,countryCode,city,postalCode,street,houseNumber,additionalAddressLine
+EMP000000001,40e293fb-26e6-48fd-b9ad-d3be61e9dd62,DE,Berlin,10115,Invalidenstrasse,42,
+EMP000000002,e40ab105-591c-4414-a94c-85f806a0fd92,TR,Istanbul,34000,Istiklal Caddesi,85,Daire 4
+EMP000000003,5f27a6b0-9fa6-44c0-85ef-71961ac1ec21,FR,Paris,75008,Avenue des Champs-Elysees,24,Appartement 3
+EMP000000004,8b853dae-221d-41c7-98bb-19a98ce1ef1c,IT,Rome,00184,Via Cavour,61,
+EMP000000005,c4d61ac4-5686-45ae-b21e-b857dafc7e25,TR,Ankara,06000,Ataturk Bulvari,117,Daire 8
+EMP000000006,d04e1257-5229-48d5-a6cb-f4bb01e42825,DE,Hamburg,20095,Monckebergstrasse,18,2. OG
+EMP000000007,fa64bc88-d6fb-4f93-975c-c56c73485574,GB,London,SW1A 1AA,Victoria Street,73,Flat 12
+EMP000000008,90b15037-624c-46bf-a038-4a32c2137304,ES,Madrid,28001,Calle de Alcala,92,Piso 3
+EMP000000009,250a5c60-c8e7-41d2-94dd-f12fa9f9356e,TR,Izmir,35000,Ataturk Caddesi,33,Daire 6
+EMP000000010,8191d260-ccf8-4744-aaf8-0416bd68aef9,DE,Mannheim,68159,Planken,12,
