@@ -20,7 +20,7 @@ modules:
 
 # ──────────────────── SAP Cloud Identity Services AMS Policies Deployer Module ────────────────────
   - name: express-ams-policies-deployer
-    type: javascript.nodejs
+    type: nodejs
     path: ams-policies-deployer
     parameters:
       buildpack: nodejs_buildpack
@@ -45,12 +45,16 @@ modules:
 
 # ─────────────────────────────────── Express.js Backend Module ────────────────────────────────────
   - name: express-service
-    type: javascript.nodejs
+    type: nodejs
     path: service/dist
     parameters:
+      buildpack: nodejs_buildpack
       memory: 256M
       disk-quota: 256M
-      buildpack: nodejs_buildpack
+    provides:
+      - name: backend-api
+        properties:
+          backend-url: ${default-url}
 
 # ─────────────────────────────────────────────────────────────── Resources ────────────────────────────────────────────────────────────────
 
