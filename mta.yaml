@@ -8,13 +8,11 @@ description: "SAP Cloud Identity Services AMS Express.js Sample Application"
 parameters:
   #deploy_mode: html5-repo
   enable-parallel-deployments: true
-# build-parameters:
-#   before-all:
-#     - builder: custom
-#       commands:
-#         - npm ci
-#         - npx cds build --production
-#         - npm run build-ts
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm run build
 
 # ──────────────────────────────────────────────────────────────── Modules ─────────────────────────────────────────────────────────────────
 
@@ -41,21 +39,18 @@ modules:
           config:
             credential-type: X509_GENERATED
             app-identifier: policy-deployer
+    build-parameters:
+      ignore:
+        - node_modules/
 
 # ─────────────────────────────────── Express.js Backend Module ────────────────────────────────────
   - name: express-service
-    type: nodejs
-    path: service
+    type: javascript.nodejs
+    path: service/dist
     parameters:
       memory: 256M
       disk-quota: 256M
       buildpack: nodejs_buildpack
-    build-parameters:
-      builder: custom
-      commands:
-        - npm ci
-        - npm run build
-      build-result: dist            
 
 # ─────────────────────────────────────────────────────────────── Resources ────────────────────────────────────────────────────────────────
 
