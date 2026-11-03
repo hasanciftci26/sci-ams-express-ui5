@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "start": "node server.js",
-        "start:local": "tsx server.ts",
+        "start:local": "tsx --env-file=.env server.ts",
         "typecheck": "tsc --noEmit",
         "clean": "shx rm -rf dist",
         "compile": "tsc",

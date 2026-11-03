@@ -21,6 +21,7 @@ export default class Database {
             this.loadEmployees(db);
             this.loadEmployeeAddresses(db);
 
+            console.log("SQLite Database Instance has been successfully created.");
             return db;
         } catch (error) {
             db.close();
