@@ -2,6 +2,7 @@ import type { Database } from "better-sqlite3";
 import RouterBase from "./RouterBase.js";
 import EmployeeService from "../core/EmployeeService.js";
 import type CustomError from "../core/CustomError.js";
+import EmployeeSchema from "../schema/EmployeeSchema.js";
 
 export default class EmployeeRouter extends RouterBase {
     private readonly service: EmployeeService;
@@ -38,7 +39,25 @@ export default class EmployeeRouter extends RouterBase {
     }
 
     private configureCreateRoute() {
+        this._router.post("/", (req, res) => {
+            const result = EmployeeSchema.validate(req.body);
 
+            if (!result.success) {
+                return res.status(400).json({
+                    message: "Invalid employee data",
+                    errors: result.error.issues
+                });
+            }
+
+            try {
+                const employee = this.service.createEmployee(result.data);
+                return res.status(201).json(employee);
+            } catch (error) {
+                return res.status((error as CustomError).status).json({
+                    message: (error as CustomError).message
+                });
+            }
+        });
     }
 
     private configureUpdateRoute() {

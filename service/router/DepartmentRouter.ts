@@ -2,6 +2,7 @@ import type { Database } from "better-sqlite3";
 import RouterBase from "./RouterBase.js";
 import type CustomError from "../core/CustomError.js";
 import DepartmentService from "../core/DepartmentService.js";
+import DepartmentSchema from "../schema/DepartmentSchema.js";
 
 export default class DepartmentRouter extends RouterBase {
     private readonly service: DepartmentService;
@@ -38,7 +39,25 @@ export default class DepartmentRouter extends RouterBase {
     }
 
     private configureCreateRoute() {
+        this._router.post("/", (req, res) => {
+            const result = DepartmentSchema.validate(req.body);
 
+            if (!result.success) {
+                return res.status(400).json({
+                    message: "Invalid department data",
+                    errors: result.error.issues
+                });
+            }
+
+            try {
+                const department = this.service.createDepartment(result.data);
+                return res.status(201).json(department);
+            } catch (error) {
+                return res.status((error as CustomError).status).json({
+                    message: (error as CustomError).message
+                });
+            }
+        });
     }
 
     private configureUpdateRoute() {

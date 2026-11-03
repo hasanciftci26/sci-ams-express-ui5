@@ -22,4 +22,31 @@ export default class EmployeeService {
     public getAllEmployees() {
         return this.db.prepare<[], Employee>("SELECT * FROM Employees").all();
     }
+
+    public createEmployee(employee: Employee) {
+        try {
+            this.db.prepare(`
+                INSERT INTO Employees (
+                    employeeID,
+                    firstName,
+                    lastName,
+                    countryCode,
+                    dateOfBirth,
+                    departmentID
+                )
+                VALUES (
+                    @employeeID,
+                    @firstName,
+                    @lastName,
+                    @countryCode,
+                    @dateOfBirth,
+                    @departmentID
+                )
+            `).run(employee);
+
+            return this.getEmployee(employee.employeeID);
+        } catch (error) {
+            throw new CustomError("Failed to create employee: " + (error as Error).message, 500);
+        }
+    }
 }

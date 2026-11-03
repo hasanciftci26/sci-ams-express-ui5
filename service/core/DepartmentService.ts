@@ -22,4 +22,23 @@ export default class DepartmentService {
     public getAllDepartments() {
         return this.db.prepare<[], Department>("SELECT * FROM Departments").all();
     }
+
+    public createDepartment(department: Department) {
+        try {
+            this.db.prepare(`
+                INSERT INTO Departments (
+                    departmentID,
+                    name
+                )
+                VALUES (
+                    @departmentID,
+                    @name
+                )
+            `).run(department);
+
+            return this.getDepartment(department.departmentID);
+        } catch (error) {
+            throw new CustomError("Failed to create department: " + (error as Error).message, 500);
+        }
+    }
 }

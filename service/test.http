@@ -1,0 +1,25 @@
+@host = localhost
+@port = 3456
+@baseUrl = http://{{host}}:{{port}}
+
+### Get all employees
+GET {{baseUrl}}/employee
+Accept: application/json
+
+### Get employee
+GET {{baseUrl}}/employee/EMP000000001
+Accept: application/json
+
+### Create employee
+POST {{baseUrl}}/employee
+Content-Type: application/json
+Accept: application/json
+
+{
+    "employeeID": "E100",
+    "firstName": "John",
+    "lastName": "Doe",
+    "countryCode": "DE",
+    "dateOfBirth": "1995-04-23",
+    "departmentID": "8a39b4f2-6731-4bd8-8463-c8c569721e60"
+}
