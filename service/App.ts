@@ -2,7 +2,8 @@ import express, { type Application } from "express";
 import EmployeeRouter from "./router/EmployeeRouter.js";
 import DepartmentRouter from "./router/DepartmentRouter.js";
 import Database from "./db/Database.js";
-import Authenticate from "./auth/Authenticate.js";
+import Authorization from "./auth/Authorization.js";
+import Authentication from "./auth/Authentication.js";
 
 export default class App {
     private readonly app: Application;
@@ -28,7 +29,7 @@ export default class App {
 
     private configureMiddlewares() {
         this.app.use(express.json());
-        this.app.use(/^\/(?!health).*/i, Authenticate.getMiddleware());
+        this.app.use(/^\/(?!health).*/i, Authentication.getMiddleware(), Authorization.getAuthorizeMiddleware());
     }
 
     private configureRouters() {

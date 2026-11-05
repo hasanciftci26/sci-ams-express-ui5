@@ -2,7 +2,7 @@ import type { RequestHandler } from "express";
 import Identity from "./Identity.js";
 import { createSecurityContext, SECURITY_CONTEXT, errors } from "@sap/xssec";
 
-export default class Authenticate {
+export default class Authentication {
     public static getMiddleware() {
         return process.env["NODE_ENV"] === "test" ? this.getTestMiddleware() : this.getProductionMiddleware();
     }

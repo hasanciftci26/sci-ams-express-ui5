@@ -7,7 +7,8 @@
     },
     "scripts": {
         "start": "deploy-dcl",
-        "local-start": "dotenv run -- deploy-dcl"
+        "local-start": "dotenv run -- deploy-dcl",
+        "compile": "compile-dcl -d dcl -o dcn"
     },
     "devDependencies": {
         "@sap/ams-dev": "^3.0.2",

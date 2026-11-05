@@ -2,13 +2,15 @@ import xsenv from "@sap/xsenv";
 import { IdentityService, IdentityServiceSecurityContext, IdentityServiceToken } from "@sap/xssec";
 
 export default class Identity {
+    private static service?: IdentityService;
+
     public static getService() {
-        const credentials = xsenv.serviceCredentials({ label: "identity" });
-        const service = new IdentityService(credentials);
+        if (!this.service) {
+            this.service = new IdentityService(xsenv.serviceCredentials({ label: "identity" }));
+            // TODO: Certificate update
+        }
 
-        // TODO: Certificate update
-
-        return service;
+        return this.service;
     }
 
     public static getMockedSecurityContext(username: string, api?: string) {
