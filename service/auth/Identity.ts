@@ -7,7 +7,6 @@ export default class Identity {
     public static getService() {
         if (!this.service) {
             this.service = new IdentityService(xsenv.serviceCredentials({ label: "identity" }));
-            // TODO: Certificate update
         }
 
         return this.service;

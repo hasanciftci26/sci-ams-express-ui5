@@ -43,17 +43,18 @@ export default class Authorization {
      * mock assignments for tests, or the Identity Service in production.
      */
     private static createAMS() {
+        let ams: AuthorizationManagementService;
+
         if (process.env["NODE_ENV"] === "test") {
-            return AuthorizationManagementService.fromLocalDcn("../ams-policies-deployer/dcn",
-                {
-                    assignments: "./auth/test/mock-policy-assignments.json"
-                }
-            );
+            ams = AuthorizationManagementService.fromLocalDcn("../ams-policies-deployer/dcn", {
+                assignments: "./auth/test/mock-policy-assignments.json"
+            });
+        } else {
+            ams = AuthorizationManagementService.fromIdentityService(Identity.getService());
         }
 
-        return AuthorizationManagementService.fromIdentityService(
-            Identity.getService()
-        );
+        this.registerErrorHandler(ams);
+        return ams;
     }
 
     /**
@@ -68,5 +69,23 @@ export default class Authorization {
         }
 
         return this.authProvider;
+    }
+
+    /**
+     * Registers a handler for errors occurring while AMS loads or refreshes
+     * its authorization bundle.
+     */
+    private static registerErrorHandler(ams: AuthorizationManagementService) {
+        ams.on("error", event => {
+            if (event.type !== "bundleRefreshError") {
+                return;
+            }
+
+            if (ams.isReady()) {
+                console.warn("AMS bundle refresh error:", event.error);
+            } else {
+                console.error("AMS initial bundle fetch error:", event.error);
+            }
+        });
     }
 }
