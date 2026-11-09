@@ -21,8 +21,7 @@ export default class EmployeeHandler {
         }
 
         const refToFieldMap = new Map<string, string>([
-            ["$app.countryCode", "countryCode"],
-            ["$app.firstName", "firstName"]
+            ["$app.countryCode", "countryCode"]
         ]);
 
         const translator = new AuthorizationConditionTranslator(decision, refToFieldMap);

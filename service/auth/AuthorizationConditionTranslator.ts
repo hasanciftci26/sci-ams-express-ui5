@@ -17,7 +17,17 @@ export default class AuthorizationConditionTranslator {
     private convertCallToSql(operator: DcnOperator, args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
         switch (operator) {
             case "eq":
-                return this.convertToSqlEq(args);
+                return this.convertToSqlComparison(args, "=");
+            case "ne":
+                return this.convertToSqlComparison(args, "<>");
+            case "gt":
+                return this.convertToSqlComparison(args, ">");
+            case "ge":
+                return this.convertToSqlComparison(args, ">=");
+            case "lt":
+                return this.convertToSqlComparison(args, "<");
+            case "le":
+                return this.convertToSqlComparison(args, "<=");
             case "and":
                 return this.convertToSqlAnd(args);
             case "or":
@@ -47,53 +57,70 @@ export default class AuthorizationConditionTranslator {
         };
     }
 
-    private convertToSqlEq(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
-        const values = this.getValueArgs(args);
-        const field = values.find(arg => arg.type === "field");
-        const literal = values.find(arg => arg.type === "literal");
+    private convertToSqlComparison(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[], operator: string) {
+        const [left, right] = this.getValueArgs(args);
 
-        if (!field || !literal) {
-            throw new Error("Invalid EQ condition: expected one field and one literal.");
+        if (!left || !right) {
+            throw new Error(`Invalid ${operator} condition: expected two values.`);
         }
 
-        if (Array.isArray(literal.value)) {
-            throw new Error("Invalid EQ condition: expected a scalar literal.");
+        if (left.type === "field" && right.type === "literal") {
+            if (Array.isArray(right.value)) {
+                throw new Error(`Invalid ${operator} condition: expected a scalar literal.`);
+            }
+
+            return {
+                sql: `${left.value} ${operator} ?`,
+                parameters: [right.value]
+            };
         }
 
-        return {
-            sql: `${field.value} = ?`,
-            parameters: [literal.value]
-        };
+        if (left.type === "literal" && right.type === "field") {
+            if (Array.isArray(left.value)) {
+                throw new Error(`Invalid ${operator} condition: expected a scalar literal.`);
+            }
+
+            return {
+                sql: `? ${operator} ${right.value}`,
+                parameters: [left.value]
+            };
+        }
+
+        throw new Error(`Invalid ${operator} condition: expected one field and one scalar literal.`);
     }
 
     private convertToSqlAnd(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
-        const [left, right] = this.getSqlExpressions(args);
+        const expressions = this.getSqlExpressions(args);
 
-        if (!left || !right) {
-            throw new Error("Invalid AND condition: expected two SQL expressions.");
+        if (expressions.length !== 2) {
+            throw new Error("Invalid AND condition: expected exactly two SQL expressions.");
         }
 
+        const [left, right] = expressions;
+
         return {
-            sql: `(${left.sql} AND ${right.sql})`,
+            sql: `(${left!.sql} AND ${right!.sql})`,
             parameters: [
-                ...left.parameters,
-                ...right.parameters
+                ...left!.parameters,
+                ...right!.parameters
             ]
         };
     }
 
     private convertToSqlOr(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
-        const [left, right] = this.getSqlExpressions(args);
+        const expressions = this.getSqlExpressions(args);
 
-        if (!left || !right) {
-            throw new Error("Invalid OR condition: expected two SQL expressions.");
+        if (expressions.length !== 2) {
+            throw new Error("Invalid OR condition: expected exactly two SQL expressions.");
         }
 
+        const [left, right] = expressions;
+
         return {
-            sql: `(${left.sql} OR ${right.sql})`,
+            sql: `(${left!.sql} OR ${right!.sql})`,
             parameters: [
-                ...left.parameters,
-                ...right.parameters
+                ...left!.parameters,
+                ...right!.parameters
             ]
         };
     }
