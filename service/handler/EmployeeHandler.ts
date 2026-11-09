@@ -4,6 +4,7 @@ import type { RequestHandler } from "express";
 import EmployeeSchema from "../schema/EmployeeSchema.js";
 import type CustomError from "../core/CustomError.js";
 import { AMS_AUTHORIZATIONS } from "@sap/ams";
+import AuthorizationConditionTranslator from "../auth/AuthorizationConditionTranslator.js";
 
 export default class EmployeeHandler {
     private readonly service: EmployeeService;
@@ -12,8 +13,22 @@ export default class EmployeeHandler {
         this.service = new EmployeeService(db);
     }
 
-    public getAllEmployees: RequestHandler = async (req, res) => {
+    public getAllEmployees: RequestHandler = (req, res) => {
+        const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees");
 
+        if (decision.isGranted()) {
+            return res.json(this.service.getAllEmployees());
+        }
+
+        const refToFieldMap = new Map<string, string>([
+            ["$app.countryCode", "countryCode"],
+            ["$app.firstName", "firstName"]
+        ]);
+
+        const translator = new AuthorizationConditionTranslator(decision, refToFieldMap);
+        const expression = translator.toSql();
+
+        return res.json(this.service.getEmployeesByExpression(expression));
     };
 
     /**
@@ -137,7 +152,7 @@ export default class EmployeeHandler {
      *
      * AMS condition -> SQL WHERE filter -> authorizes/filter collections efficiently
      */
-    public getEmployee: RequestHandler<{ employeeId: string; }> = async (req, res) => {
+    public getEmployee: RequestHandler<{ employeeId: string; }> = (req, res) => {
         try {
             const employee = this.service.getEmployee(req.params.employeeId);
             const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees", { countryCode: employee.countryCode });
@@ -154,7 +169,7 @@ export default class EmployeeHandler {
         }
     };
 
-    public createEmployee: RequestHandler = async (req, res) => {
+    public createEmployee: RequestHandler = (req, res) => {
         const result = EmployeeSchema.validate(req.body);
 
         if (!result.success) {

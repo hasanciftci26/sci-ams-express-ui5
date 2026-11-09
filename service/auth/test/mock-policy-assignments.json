@@ -1,7 +1,7 @@
 {
     "default": {
         "admin": [
-            "application.applicationAdmin"
+            "employee.masterData.employeeMasterDataViewerTR"
         ]
     }
 }

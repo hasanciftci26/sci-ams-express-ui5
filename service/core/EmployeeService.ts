@@ -1,6 +1,7 @@
 import type { Database } from "better-sqlite3";
 import type { Employee } from "../types/db/Database.types.js";
 import CustomError from "./CustomError.js";
+import type { SqlExpression, SqlParameter } from "../types/auth/AuthorizationConditionTranslator.types.js";
 
 export default class EmployeeService {
     private readonly db: Database;
@@ -21,6 +22,10 @@ export default class EmployeeService {
 
     public getAllEmployees() {
         return this.db.prepare<[], Employee>("SELECT * FROM Employees").all();
+    }
+
+    public getEmployeesByExpression(expression: SqlExpression) {
+        return this.db.prepare<SqlParameter[], Employee>(`SELECT * FROM Employees WHERE ${expression.sql}`).all(...expression.parameters);
     }
 
     public createEmployee(employee: Employee) {
