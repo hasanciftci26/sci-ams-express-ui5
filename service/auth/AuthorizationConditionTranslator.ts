@@ -1,5 +1,5 @@
 import type { DcnOperator, DcnReference, DcnValue, Decision } from "@sap/ams/types/Types.js";
-import type { SqlExpression, ValueArg } from "../types/auth/AuthorizationConditionTranslator.types.js";
+import type { ComparisonOperators, LogicalOperators, SqlExpression, ValueArg } from "../types/auth/AuthorizationConditionTranslator.types.js";
 
 export default class AuthorizationConditionTranslator {
     private readonly decision: Decision;
@@ -29,9 +29,9 @@ export default class AuthorizationConditionTranslator {
             case "le":
                 return this.convertToSqlComparison(args, "<=");
             case "and":
-                return this.convertToSqlAnd(args);
+                return this.convertToSqlLogical(args, "AND");
             case "or":
-                return this.convertToSqlOr(args);
+                return this.convertToSqlLogical(args, "OR");
             default:
                 throw new Error(`Unsupported DCN operator '${operator}'.`);
         }
@@ -57,7 +57,7 @@ export default class AuthorizationConditionTranslator {
         };
     }
 
-    private convertToSqlComparison(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[], operator: string) {
+    private convertToSqlComparison(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[], operator: ComparisonOperators) {
         const [left, right] = this.getValueArgs(args);
 
         if (!left || !right) {
@@ -89,35 +89,17 @@ export default class AuthorizationConditionTranslator {
         throw new Error(`Invalid ${operator} condition: expected one field and one scalar literal.`);
     }
 
-    private convertToSqlAnd(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
+    private convertToSqlLogical(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[], operator: LogicalOperators) {
         const expressions = this.getSqlExpressions(args);
 
         if (expressions.length !== 2) {
-            throw new Error("Invalid AND condition: expected exactly two SQL expressions.");
+            throw new Error(`Invalid ${operator} condition: expected exactly two SQL expressions.`);
         }
 
         const [left, right] = expressions;
 
         return {
-            sql: `(${left!.sql} AND ${right!.sql})`,
-            parameters: [
-                ...left!.parameters,
-                ...right!.parameters
-            ]
-        };
-    }
-
-    private convertToSqlOr(args: (DcnReference | DcnValue | ValueArg | SqlExpression)[]) {
-        const expressions = this.getSqlExpressions(args);
-
-        if (expressions.length !== 2) {
-            throw new Error("Invalid OR condition: expected exactly two SQL expressions.");
-        }
-
-        const [left, right] = expressions;
-
-        return {
-            sql: `(${left!.sql} OR ${right!.sql})`,
+            sql: `(${left!.sql} ${operator} ${right!.sql})`,
             parameters: [
                 ...left!.parameters,
                 ...right!.parameters

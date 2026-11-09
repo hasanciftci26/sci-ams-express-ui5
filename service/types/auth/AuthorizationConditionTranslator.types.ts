@@ -14,3 +14,6 @@ export type ValueArg = {
     type: "literal";
     value: DcnValue;
 };
+
+export type ComparisonOperators = "=" | "<>" | ">" | ">=" | "<" | "<=";
+export type LogicalOperators = "AND" | "OR";
