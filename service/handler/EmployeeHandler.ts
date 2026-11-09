@@ -13,23 +13,6 @@ export default class EmployeeHandler {
         this.service = new EmployeeService(db);
     }
 
-    public getAllEmployees: RequestHandler = (req, res) => {
-        const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees");
-
-        if (decision.isGranted()) {
-            return res.json(this.service.getAllEmployees());
-        }
-
-        const refToFieldMap = new Map<string, string>([
-            ["$app.countryCode", "countryCode"]
-        ]);
-
-        const translator = new AuthorizationConditionTranslator(decision, refToFieldMap);
-        const expression = translator.toSql();
-
-        return res.json(this.service.getEmployeesByExpression(expression));
-    };
-
     /**
      * Returns a single employee if the authenticated user is authorized to read
      * the requested employee record.
@@ -166,6 +149,175 @@ export default class EmployeeHandler {
                 message: (error as CustomError).message
             });
         }
+    };
+
+    /**
+     * Returns all employee records that the authenticated user is authorized to read.
+     *
+     * ## Authorization flow
+     *
+     * Authorization for reading the employee collection happens in two stages:
+     *
+     * 1. A privilege precheck in `EmployeeRouter`
+     * 2. A collection-specific authorization check and database filtering in this handler
+     *
+     * The route is configured with:
+     *
+     * `precheckPrivilege("read", "Employees")`
+     *
+     * before this handler is executed. The precheck determines whether the user has
+     * any potentially applicable authorization for reading the `Employees` resource.
+     *
+     * An AMS privilege can effectively result in three cases:
+     *
+     * ### 1. Unconditionally denied
+     *
+     * The user has no policy that permits reading `Employees`.
+     *
+     * In this case, `precheckPrivilege` rejects the request with HTTP 403 before this
+     * handler is executed. Therefore, this handler does not need to explicitly handle
+     * an unconditionally denied decision.
+     *
+     * ### 2. Unconditionally granted
+     *
+     * The user has unrestricted read access, for example:
+     *
+     * `GRANT read ON Employees;`
+     *
+     * In this case:
+     *
+     * `decision.isGranted()`
+     *
+     * returns `true`, and all employees can safely be retrieved from the database
+     * without applying an authorization filter.
+     *
+     * ### 3. Conditionally granted
+     *
+     * The user is allowed to read only employees satisfying an authorization
+     * condition, for example:
+     *
+     * `GRANT read ON Employees WHERE countryCode = 'DE';`
+     *
+     * or:
+     *
+     * `GRANT read ON Employees WHERE countryCode = $user.userRegion;`
+     *
+     * In this case, the decision is neither unconditionally granted nor
+     * unconditionally denied. Instead, it contains the remaining condition that must
+     * be applied to the employee data.
+     *
+     * For example, after resolving user attributes, AMS may produce a condition
+     * equivalent to:
+     *
+     * `$app.countryCode = "DE"`
+     *
+     * ## Translating the AMS condition to SQL
+     *
+     * Unlike the single-employee endpoint, this handler must not first retrieve all
+     * employees and then evaluate the AMS condition for every record in application
+     * memory.
+     *
+     * Doing so would result in a query such as:
+     *
+     * `SELECT * FROM Employees`
+     *
+     * followed by authorization filtering in JavaScript. This would unnecessarily
+     * retrieve records that the user is not authorized to access and would become
+     * increasingly inefficient as the number of employees grows.
+     *
+     * Instead, the conditional AMS decision is translated into a parameterized SQL
+     * expression before the database is queried.
+     *
+     * `AuthorizationConditionTranslator` uses the AMS condition tree to convert
+     * authorization expressions into their SQL equivalents.
+     *
+     * For example:
+     *
+     * `$app.countryCode = "DE"`
+     *
+     * is translated into:
+     *
+     * `countryCode = ?`
+     *
+     * with:
+     *
+     * `parameters: ["DE"]`
+     *
+     * A more complex authorization condition such as:
+     *
+     * `$app.countryCode = "DE" OR $app.countryCode = "TR"`
+     *
+     * can be translated into:
+     *
+     * `(countryCode = ? OR countryCode = ?)`
+     *
+     * with:
+     *
+     * `parameters: ["DE", "TR"]`
+     *
+     * The resulting expression is passed to `EmployeeService`, which adds it to the
+     * database query as the WHERE condition. The database therefore returns only
+     * records satisfying the authorization condition.
+     *
+     * ## Mapping AMS attributes to database fields
+     *
+     * AMS conditions operate on application attributes such as:
+     *
+     * `$app.countryCode`
+     *
+     * while the database operates on columns such as:
+     *
+     * `countryCode`
+     *
+     * `refToFieldMap` explicitly defines this mapping. Only known AMS references are
+     * allowed to become database field names. Literal values are never interpolated
+     * directly into the SQL string; they are represented by `?` placeholders and
+     * supplied separately as bound parameters.
+     *
+     * This separation is important both for correctness and for preventing
+     * authorization values from becoming executable SQL.
+     *
+     * ## Difference from the single-employee endpoint
+     *
+     * For `GET /employee/:employeeId`, one employee is requested. It is therefore
+     * practical to retrieve that employee first and provide its authorization-relevant
+     * attributes to `checkPrivilege`, allowing AMS to make a final entity-specific
+     * decision.
+     *
+     * For `GET /employee`, potentially many records are involved. The conditional
+     * AMS decision is therefore translated into a SQL WHERE expression so that
+     * authorization filtering happens inside the database.
+     *
+     * In summary:
+     *
+     * `precheckPrivilege`
+     * -> rejects users with no applicable read authorization
+     *
+     * unconditional AMS decision
+     * -> query and return all employees
+     *
+     * conditional AMS decision
+     * -> translate AMS condition to parameterized SQL
+     * -> query only authorized employees
+     *
+     * This keeps the authorization rules in AMS/DCL while allowing the database to
+     * efficiently enforce the resulting data restrictions.
+     */
+    public getAllEmployees: RequestHandler = (req, res) => {
+        const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees");
+
+        if (decision.isGranted()) {
+            return res.json(this.service.getAllEmployees());
+        }
+
+        const refToFieldMap = new Map<string, string>([
+            ["$app.countryCode", "countryCode"]
+        ]);
+
+        const translator = new AuthorizationConditionTranslator(decision, refToFieldMap);
+        const expression = translator.toSql();
+
+        return res.json(this.service.getEmployeesByExpression(expression));
     };
 
     public createEmployee: RequestHandler = (req, res) => {
