@@ -2,6 +2,7 @@ import type { Database } from "better-sqlite3";
 import type { Employee } from "../types/db/Database.types.js";
 import CustomError from "./CustomError.js";
 import type { SqlExpression, SqlParameter } from "../types/auth/AuthorizationConditionTranslator.types.js";
+import type { EmployeeUpdate } from "../types/schema/EmployeeSchema.types.js";
 
 export default class EmployeeService {
     private readonly db: Database;
@@ -52,6 +53,27 @@ export default class EmployeeService {
             return this.getEmployee(employee.employeeID);
         } catch (error) {
             throw new CustomError("Failed to create employee: " + (error as Error).message, 500);
+        }
+    }
+
+    public updateEmployee(employeeId: string, changes: EmployeeUpdate) {
+        try {
+            const entries = Object.entries(changes);
+            const setClause = entries.map(([field]) => `${field} = ?`).join(", ");
+            const values = entries.map(([, value]) => value);
+            const result = this.db.prepare(`UPDATE Employees SET ${setClause} WHERE employeeID = ?`).run(...values, employeeId);
+
+            if (result.changes === 0) {
+                throw new CustomError("Employee with the following ID was not found: " + employeeId, 404);
+            }
+
+            return this.getEmployee(employeeId);
+        } catch (error) {
+            if (error instanceof CustomError) {
+                throw error;
+            }
+
+            throw new CustomError("Failed to update employee: " + (error as Error).message, 500);
         }
     }
 }

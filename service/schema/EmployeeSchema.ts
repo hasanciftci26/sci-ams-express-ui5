@@ -1,8 +1,7 @@
 import { z } from "zod";
-import type { Employee } from "../types/db/Database.types.js";
 
 export default class EmployeeSchema {
-    private static readonly schema: z.ZodType<Employee> = z.strictObject({
+    private static readonly schema = z.strictObject({
         employeeID: z.string().min(1).max(12),
         firstName: z.string().min(1).max(40),
         lastName: z.string().min(1).max(40),
@@ -11,7 +10,20 @@ export default class EmployeeSchema {
         departmentID: z.string().min(1)
     });
 
+    public static readonly updateSchema = this.schema
+        .omit({
+            employeeID: true
+        })
+        .partial()
+        .refine(data => Object.keys(data).length > 0, {
+            message: "At least one field must be provided."
+        });
+
     public static validate(data: unknown) {
         return this.schema.safeParse(data);
+    }
+
+    public static validateUpdate(data: unknown) {
+        return this.updateSchema.safeParse(data);
     }
 }

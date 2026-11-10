@@ -350,4 +350,24 @@ export default class EmployeeHandler {
             });
         }
     };
+
+    public updateEmployee: RequestHandler<{ employeeId: string }> = (req, res) => {
+        const result = EmployeeSchema.validateUpdate(req.body);
+
+        if (!result.success) {
+            return res.status(400).json({
+                message: "Invalid employee data",
+                errors: result.error.issues
+            });
+        }
+
+        try {
+            const employee = this.service.updateEmployee(req.params.employeeId, result.data);
+            return res.json(employee);
+        } catch (error) {
+            return res.status((error as CustomError).status).json({
+                message: (error as CustomError).message
+            });
+        }
+    };
 }

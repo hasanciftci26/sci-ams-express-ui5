@@ -28,3 +28,15 @@ Authorization: Basic {{username}}:{{password}}
     "dateOfBirth": "1995-04-23",
     "departmentID": "8a39b4f2-6731-4bd8-8463-c8c569721e60"
 }
+
+### Update employee
+PATCH {{baseUrl}}/employee/EMP000000001
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "countryCode": "US"
+}

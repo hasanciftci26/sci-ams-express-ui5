@@ -80,7 +80,7 @@ export default class EmployeeRouter extends RouterBase {
     }
 
     private configureUpdateRoute() {
-
+        this._router.patch("/:employeeId", this.handler.updateEmployee);
     }
 
     private configureDeleteRoute() {
