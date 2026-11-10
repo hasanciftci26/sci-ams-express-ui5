@@ -1,6 +1,8 @@
-import { AuthorizationManagementService, IdentityServiceAuthProvider } from "@sap/ams";
+import { AMS_AUTHORIZATIONS, AuthorizationManagementService, IdentityServiceAuthProvider } from "@sap/ams";
 import Identity from "./Identity.js";
 import type { RequestHandler } from "express";
+import { SECURITY_CONTEXT } from "@sap/xssec";
+import mockUserInputs from "./test/mock-user-inputs.json" with { type: "json" };
 
 export default class Authorization {
     private static ams?: AuthorizationManagementService;
@@ -35,7 +37,37 @@ export default class Authorization {
      * the authenticated principal and stores them in req[AMS_AUTHORIZATIONS].
      */
     public static getAuthorizeMiddleware() {
-        return this.getMiddleware().authorize() as RequestHandler;
+        const authorize = this.getMiddleware().authorize() as RequestHandler;
+
+        if (process.env["NODE_ENV"] !== "test") {
+            return authorize;
+        }
+
+        const middleware: RequestHandler = (req, res, next) => {
+            authorize(req, res, error => {
+                if (error) {
+                    return next(error);
+                }
+
+                const username = req[SECURITY_CONTEXT].token.scimId;
+                const userInputs = mockUserInputs[username as keyof typeof mockUserInputs];
+
+                if (userInputs) {
+                    const defaultInput = Object.fromEntries(
+                        Object.entries(userInputs).map(([variable, value]) => [
+                            `$env.$user.${variable}`,
+                            value
+                        ])
+                    );
+
+                    req[AMS_AUTHORIZATIONS].withDefaultInput(defaultInput);
+                }
+
+                return next();
+            });
+        };
+
+        return middleware;
     }
 
     /**
