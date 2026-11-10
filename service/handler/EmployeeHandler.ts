@@ -330,6 +330,17 @@ export default class EmployeeHandler {
             });
         }
 
+        const input = {
+            countryCode: result.data.countryCode
+        };
+
+        const readDecision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees", input);
+        const createDecision = req[AMS_AUTHORIZATIONS].checkPrivilege("create", "Employees", input);
+
+        if (!readDecision.isGranted() || !createDecision.isGranted()) {
+            return res.sendStatus(403);
+        }
+
         try {
             const employee = this.service.createEmployee(result.data);
             return res.status(201).json(employee);

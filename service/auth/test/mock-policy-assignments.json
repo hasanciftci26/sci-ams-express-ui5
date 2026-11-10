@@ -1,7 +1,7 @@
 {
     "default": {
         "admin": [
-            "employee.masterData.employeeMasterDataViewerRegional"
+            "employee.masterData.employeeMasterDataAdminRegional"
         ]
     }
 }

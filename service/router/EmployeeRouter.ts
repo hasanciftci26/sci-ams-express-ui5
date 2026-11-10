@@ -42,8 +42,41 @@ export default class EmployeeRouter extends RouterBase {
         this._router.get("/:employeeId", Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler, this.handler.getEmployee);
     }
 
+    /**
+     * Configures the create routes and applies AMS privilege prechecks before
+     * executing the corresponding request handlers.
+     *
+     * Create operations require both read and create authorization for the
+     * respective resource. This ensures that users can only create resources
+     * that they are also authorized to read.
+     *
+     * `precheckPrivilege` rejects users who have no potentially applicable
+     * authorization before the request handler is executed, while allowing both
+     * unconditionally and conditionally authorized users to continue.
+     *
+     * The prechecks do not resolve conditions that depend on the data being
+     * created. The respective handler performs the final authorization checks
+     * after the request data has been validated and the authorization-relevant
+     * resource attributes are available.
+     *
+     * The authorization therefore happens in two stages:
+     *
+     * 1. Route-level prechecks verify that the user has potentially applicable
+     *    read and create privileges for the resource.
+     * 2. The handler evaluates both privileges against the concrete resource data
+     *    and proceeds with the creation only if both decisions are granted.
+     *
+     * This prevents unnecessary request processing for completely unauthorized
+     * users while ensuring that conditional policies are evaluated against the
+     * actual resource before any database mutation occurs.
+     */
     private configureCreateRoute() {
-        this._router.post("/", this.handler.createEmployee);
+        this._router.post(
+            "/",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().precheckPrivilege("create", "Employees") as RequestHandler,
+            this.handler.createEmployee
+        );
     }
 
     private configureUpdateRoute() {
