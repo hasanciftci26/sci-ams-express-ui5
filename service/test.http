@@ -72,7 +72,7 @@ Authorization: Basic {{username}}:{{password}}
 
 {
     "departmentID": "b47b6a23-9874-4c68-9dc2-4d42d9d8e321",
-    "name": "Human Resources"
+    "name": "Business Development"
 }
 
 ### Update department
@@ -82,10 +82,10 @@ Accept: application/json
 Authorization: Basic {{username}}:{{password}}
 
 {
-    "name": "People & Culture"
+    "name": "Strategic Partnerships"
 }
 
 ### Delete department
-DELETE {{baseUrl}}/department/8a39b4f2-6731-4bd8-8463-c8c569721e60
+DELETE {{baseUrl}}/department/b47b6a23-9874-4c68-9dc2-4d42d9d8e321
 Accept: application/json
 Authorization: Basic {{username}}:{{password}}

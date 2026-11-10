@@ -66,6 +66,14 @@ export default class DepartmentService {
 
     public deleteDepartment(departmentId: string) {
         try {
+            const employee = this.db
+                .prepare<[string], { value: number }>("SELECT 1 AS value FROM Employees WHERE departmentID = ? LIMIT 1")
+                .get(departmentId);
+
+            if (employee) {
+                throw new CustomError("Department cannot be deleted because it is assigned to one or more employees.", 409);
+            }
+
             const result = this.db.prepare<[string]>("DELETE FROM Departments WHERE departmentID = ?").run(departmentId);
 
             if (result.changes === 0) {
