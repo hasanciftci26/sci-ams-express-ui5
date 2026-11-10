@@ -76,4 +76,20 @@ export default class EmployeeService {
             throw new CustomError("Failed to update employee: " + (error as Error).message, 500);
         }
     }
+
+    public deleteEmployee(employeeId: string) {
+        try {
+            const result = this.db.prepare<[string]>("DELETE FROM Employees WHERE employeeID = ?").run(employeeId);
+
+            if (result.changes === 0) {
+                throw new CustomError("Employee with the following ID was not found: " + employeeId, 404);
+            }
+        } catch (error) {
+            if (error instanceof CustomError) {
+                throw error;
+            }
+
+            throw new CustomError("Failed to delete employee: " + (error as Error).message, 500);
+        }
+    }
 }
