@@ -4,6 +4,10 @@
 @username = admin
 @password = admin
 
+### ─────────────────────────────────────────────────────────────
+### Employees
+### ─────────────────────────────────────────────────────────────
+
 ### Get all employees
 GET {{baseUrl}}/employee
 Accept: application/json
@@ -21,7 +25,7 @@ Accept: application/json
 Authorization: Basic {{username}}:{{password}}
 
 {
-    "employeeID": "E100",
+    "employeeID": "EMP000000011",
     "firstName": "John",
     "lastName": "Doe",
     "countryCode": "DE",
@@ -40,3 +44,48 @@ Authorization: Basic {{username}}:{{password}}
     "lastName": "Smith",
     "countryCode": "US"
 }
+
+### Delete employee
+DELETE {{baseUrl}}/employee/EMP000000001
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### ─────────────────────────────────────────────────────────────
+### Departments
+### ─────────────────────────────────────────────────────────────
+
+### Get all departments
+GET {{baseUrl}}/department
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### Get department
+GET {{baseUrl}}/department/8a39b4f2-6731-4bd8-8463-c8c569721e60
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### Create department
+POST {{baseUrl}}/department
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "departmentID": "b47b6a23-9874-4c68-9dc2-4d42d9d8e321",
+    "name": "Human Resources"
+}
+
+### Update department
+PATCH {{baseUrl}}/department/8a39b4f2-6731-4bd8-8463-c8c569721e60
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "name": "People & Culture"
+}
+
+### Delete department
+DELETE {{baseUrl}}/department/8a39b4f2-6731-4bd8-8463-c8c569721e60
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
