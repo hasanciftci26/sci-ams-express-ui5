@@ -1,7 +1,8 @@
-@label: 'Employee Master Data Viewer Policy'
-@description: 'Grants read access to all employee master data records.'
-POLICY employeeMasterDataViewer {
-    GRANT read ON Employees;
+@label: 'Employee Master Data Viewer - Unrestricted'
+@description: 'Grants read access to all employee master data records without requiring a country restriction.'
+POLICY employeeMasterDataViewerUnrestricted {
+    GRANT read ON Employees 
+        WHERE countryCode IS NOT RESTRICTED;
 }
 
 @label: 'Türkiye Employee Master Data Viewer Policy'

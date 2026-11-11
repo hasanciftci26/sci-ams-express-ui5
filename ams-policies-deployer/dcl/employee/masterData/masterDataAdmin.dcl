@@ -24,3 +24,10 @@ POLICY employeeMasterDataAdminRegional {
     GRANT * ON Employees 
         WHERE countryCode = $user.userRegion;
 }
+
+@label: 'Employee Master Data Admin - Required Restriction'
+@description: 'Grants full access to employee master data records only when an administrator provides a country restriction.'
+POLICY employeeMasterDataAdminRestricted {
+    GRANT * ON Employees 
+        WHERE countryCode IS RESTRICTED;
+}
