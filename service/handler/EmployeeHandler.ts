@@ -177,4 +177,40 @@ export default class EmployeeHandler {
             });
         }
     };
+
+    public getEmployeeAddress: RequestHandler<{ employeeId: string; addressId: string; }> = (req, res) => {
+        try {
+            const employee = this.service.getEmployee(req.params.employeeId);
+            const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees", { countryCode: employee.countryCode });
+
+            if (!decision.isGranted()) {
+                return res.sendStatus(403);
+            }
+
+            const address = this.service.getEmployeeAddress(req.params.employeeId, req.params.addressId);
+            return res.json(address);
+        } catch (error) {
+            return res.status((error as CustomError).status).json({
+                message: (error as CustomError).message
+            });
+        }
+    };
+
+    public getAllEmployeeAddresses: RequestHandler<{ employeeId: string; }> = (req, res) => {
+        try {
+            const employee = this.service.getEmployee(req.params.employeeId);
+            const decision = req[AMS_AUTHORIZATIONS].checkPrivilege("read", "Employees", { countryCode: employee.countryCode });
+
+            if (!decision.isGranted()) {
+                return res.sendStatus(403);
+            }
+
+            const addresses = this.service.getAllEmployeeAddresses(req.params.employeeId);
+            return res.json(addresses);
+        } catch (error) {
+            return res.status((error as CustomError).status).json({
+                message: (error as CustomError).message
+            });
+        }
+    };
 }

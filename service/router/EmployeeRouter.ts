@@ -30,6 +30,21 @@ export default class EmployeeRouter extends RouterBase {
     private configureReadRoute() {
         this._router.get("/", Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler, this.handler.getAllEmployees);
         this._router.get("/:employeeId", Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler, this.handler.getEmployee);
+
+        this._router.get(
+            "/:employeeId/address",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("read", "EmployeeAddresses") as RequestHandler,
+            this.handler.getAllEmployeeAddresses
+        );
+
+
+        this._router.get(
+            "/:employeeId/address/:addressId",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("read", "EmployeeAddresses") as RequestHandler,
+            this.handler.getEmployeeAddress
+        );
     }
 
     /**

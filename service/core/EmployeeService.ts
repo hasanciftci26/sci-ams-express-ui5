@@ -1,5 +1,5 @@
 import type { Database } from "better-sqlite3";
-import type { Employee } from "../types/db/Database.types.js";
+import type { Employee, EmployeeAddress } from "../types/db/Database.types.js";
 import CustomError from "./CustomError.js";
 import type { SqlExpression, SqlParameter } from "../types/auth/AuthorizationConditionTranslator.types.js";
 import type { EmployeeUpdate } from "../types/schema/EmployeeSchema.types.js";
@@ -91,5 +91,21 @@ export default class EmployeeService {
 
             throw new CustomError("Failed to delete employee: " + (error as Error).message, 500);
         }
+    }
+
+    public getEmployeeAddress(employeeId: string, addressId: string) {
+        const address = this.db.prepare<[string, string], EmployeeAddress>(
+            "SELECT * FROM EmployeeAddresses WHERE employeeID = ? AND addressID = ?"
+        ).get(employeeId, addressId);
+
+        if (!address) {
+            throw new CustomError(`Address with ID '${addressId}' was not found for employee '${employeeId}'.`, 404);
+        }
+
+        return address;
+    }
+
+    public getAllEmployeeAddresses(employeeId: string) {
+        return this.db.prepare<[string], EmployeeAddress>("SELECT * FROM EmployeeAddresses WHERE employeeID = ?").all(employeeId);
     }
 }

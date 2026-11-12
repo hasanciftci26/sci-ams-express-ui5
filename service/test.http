@@ -51,6 +51,15 @@ Accept: application/json
 Authorization: Basic {{username}}:{{password}}
 
 ### ─────────────────────────────────────────────────────────────
+### Employee Addresses
+### ─────────────────────────────────────────────────────────────
+
+### Get all employee addresses
+GET {{baseUrl}}/employee/EMP000000002/address
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### ─────────────────────────────────────────────────────────────
 ### Departments
 ### ─────────────────────────────────────────────────────────────
 
