@@ -60,6 +60,14 @@ export default class EmployeeRouter extends RouterBase {
             Authorization.getMiddleware().precheckPrivilege("create", "Employees") as RequestHandler,
             this.handler.createEmployee
         );
+
+        this._router.post(
+            "/:employeeId/address",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("read", "EmployeeAddresses") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("create", "EmployeeAddresses") as RequestHandler,
+            this.handler.createEmployeeAddress
+        );
     }
 
     /**
@@ -74,6 +82,14 @@ export default class EmployeeRouter extends RouterBase {
             Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
             Authorization.getMiddleware().precheckPrivilege("update", "Employees") as RequestHandler,
             this.handler.updateEmployee
+        );
+
+        this._router.patch(
+            "/:employeeId/address/:addressId",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("read", "EmployeeAddresses") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("update", "EmployeeAddresses") as RequestHandler,
+            this.handler.updateEmployeeAddress
         );
     }
 
@@ -90,5 +106,13 @@ export default class EmployeeRouter extends RouterBase {
             Authorization.getMiddleware().precheckPrivilege("delete", "Employees") as RequestHandler,
             this.handler.deleteEmployee
         );
+
+        this._router.delete(
+            "/:employeeId/address/:addressId",
+            Authorization.getMiddleware().precheckPrivilege("read", "Employees") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("read", "EmployeeAddresses") as RequestHandler,
+            Authorization.getMiddleware().checkPrivilege("delete", "EmployeeAddresses") as RequestHandler,
+            this.handler.deleteEmployeeAddress
+        );        
     }
 }

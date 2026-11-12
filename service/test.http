@@ -55,7 +55,47 @@ Authorization: Basic {{username}}:{{password}}
 ### ─────────────────────────────────────────────────────────────
 
 ### Get all employee addresses
-GET {{baseUrl}}/employee/EMP000000002/address
+GET {{baseUrl}}/employee/EMP000000001/address
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### Get employee address
+GET {{baseUrl}}/employee/EMP000000001/address/550e8400-e29b-41d4-a716-446655440000
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+### Create employee address
+POST {{baseUrl}}/employee/EMP000000001/address
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "addressID": "550e8400-e29b-41d4-a716-446655440000",
+    "countryCode": "DE",
+    "city": "Walldorf",
+    "postalCode": "69190",
+    "street": "Dietmar-Hopp-Allee",
+    "houseNumber": "16",
+    "additionalAddressLine": null
+}
+
+### Update employee address
+PATCH {{baseUrl}}/employee/EMP000000001/address/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+Accept: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+    "city": "Heidelberg",
+    "postalCode": "69115",
+    "street": "Hauptstraße",
+    "houseNumber": "25",
+    "additionalAddressLine": "2nd Floor"
+}
+
+### Delete employee address
+DELETE {{baseUrl}}/employee/EMP000000001/address/550e8400-e29b-41d4-a716-446655440000
 Accept: application/json
 Authorization: Basic {{username}}:{{password}}
 

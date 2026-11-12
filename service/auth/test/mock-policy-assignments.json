@@ -1,7 +1,8 @@
 {
     "default": {
         "admin": [
-            "employee.masterData.employeeMasterDataAdminRegional"
+            "employee.masterData.employeeMasterDataAdminRegional",
+            "employee.address.employeeAddressAdmin"
         ]
     }
 }

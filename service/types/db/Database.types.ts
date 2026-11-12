@@ -20,5 +20,5 @@ export type EmployeeAddress = {
     postalCode: string;
     street: string;
     houseNumber: string;
-    additionalAddressLine: string;
+    additionalAddressLine: string | null;
 };
