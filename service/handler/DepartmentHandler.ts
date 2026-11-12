@@ -17,7 +17,7 @@ export default class DepartmentHandler {
      *
      * @see {@link https://github.com/hasanciftci26/sci-ams-express-ui5/blob/main/service/docs/authorization/DepartmentAuthorization.md#read-authorization | Read Authorization}
      */
-    public getAllDepartments: RequestHandler = (req, res) => {
+    public getAllDepartments: RequestHandler = (_req, res) => {
         return res.json(this.service.getAllDepartments());
     };
 

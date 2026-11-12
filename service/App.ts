@@ -47,7 +47,7 @@ export default class App {
      * Reports whether the application is ready to serve requests.
      * The application is considered ready once AMS has been initialized.
      */
-    private healthCheck(req: Request, res: Response) {
+    private healthCheck(_req: Request, res: Response) {
         if (!this.isReady) {
             return res.status(503).json({
                 status: "DOWN",

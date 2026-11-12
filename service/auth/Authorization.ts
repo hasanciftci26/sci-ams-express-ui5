@@ -2,7 +2,7 @@ import { AMS_AUTHORIZATIONS, AuthorizationManagementService, IdentityServiceAuth
 import Identity from "./Identity.js";
 import type { RequestHandler } from "express";
 import { SECURITY_CONTEXT } from "@sap/xssec";
-import mockUserInputs from "./test/mock-user-inputs.json" with { type: "json" };
+import { readFileSync } from "node:fs";
 
 export default class Authorization {
     private static ams?: AuthorizationManagementService;
@@ -35,6 +35,10 @@ export default class Authorization {
     /**
      * Returns the Express middleware that resolves the authorizations for
      * the authenticated principal and stores them in req[AMS_AUTHORIZATIONS].
+     *
+     * During local testing, additional mocked $user attributes are loaded from
+     * the test configuration and added to the resolved authorizations as
+     * default AMS input.
      */
     public static getAuthorizeMiddleware() {
         const authorize = this.getMiddleware().authorize() as RequestHandler;
@@ -43,6 +47,8 @@ export default class Authorization {
             return authorize;
         }
 
+        const mockUserInputs = this.getMockUserInputs();
+
         const middleware: RequestHandler = (req, res, next) => {
             authorize(req, res, error => {
                 if (error) {
@@ -50,14 +56,11 @@ export default class Authorization {
                 }
 
                 const username = req[SECURITY_CONTEXT].token.scimId;
-                const userInputs = mockUserInputs[username as keyof typeof mockUserInputs];
+                const userInputs = mockUserInputs[username];
 
                 if (userInputs) {
                     const defaultInput = Object.fromEntries(
-                        Object.entries(userInputs).map(([variable, value]) => [
-                            `$env.$user.${variable}`,
-                            value
-                        ])
+                        Object.entries(userInputs).map(([variable, value]) => [`$env.$user.${variable}`, value])
                     );
 
                     req[AMS_AUTHORIZATIONS].withDefaultInput(defaultInput);
@@ -90,14 +93,20 @@ export default class Authorization {
     }
 
     /**
+     * Loads the mocked AMS $user attributes used during local testing.
+     */
+    private static getMockUserInputs() {
+        const content = readFileSync("./auth/test/mock-user-inputs.json", "utf-8");
+        return JSON.parse(content) as Record<string, Record<string, string>>;
+    }
+
+    /**
      * Returns the shared authentication provider that connects the
      * authenticated Identity Service principal with AMS.
      */
     private static getAuthProvider() {
         if (!this.authProvider) {
-            this.authProvider = new IdentityServiceAuthProvider(
-                this.getAMS()
-            );
+            this.authProvider = new IdentityServiceAuthProvider(this.getAMS());
         }
 
         return this.authProvider;
