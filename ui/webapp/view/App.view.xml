@@ -3,6 +3,25 @@
     displayBlock="true"
     xmlns="sap.m"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
 >
-    <App id="app" />
+    <App id="app">
+        <Page>
+            <customHeader>
+                <f:ShellBar
+                    id="sbApplication"
+                    title="{i18n>appTitle}"
+                    homeIcon="img/app_logo.png"
+                >
+                    <f:profile>
+                        <Avatar initials="UI" />
+                    </f:profile>
+                </f:ShellBar>
+            </customHeader>
+            <content>
+                <NavContainer id="pageContainer" />
+            </content>
+        </Page>
+    </App>
 </mvc:View>

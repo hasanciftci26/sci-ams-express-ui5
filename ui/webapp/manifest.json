@@ -40,7 +40,8 @@
             "libs": {
                 "sap.m": {},
                 "sap.ui.core": {},
-                "sap.ui.table": {}
+                "sap.ui.table": {},
+                "sap.f": {}
             }
         },
         "contentDensities": {
@@ -73,7 +74,7 @@
                 "async": true,
                 "path": "sci.ams.express.view",
                 "controlAggregation": "pages",
-                "controlId": "app",
+                "controlId": "pageContainer",
                 "clearControlAggregation": false
             },
             "routes": [

@@ -1,4 +1,5 @@
 <mvc:View
+    xmlns:table="sap.ui.table"
     controllerName="sci.ams.express.controller.Homepage"
     displayBlock="true"
     xmlns="sap.m"
@@ -10,7 +11,117 @@
         showHeader="false"
     >
         <content>
-            <Text text="SCI AMS Express UI Application" />
+            <IconTabBar>
+                <items>
+                    <IconTabFilter
+                        key="Employees"
+                        text="Employees"
+                    >
+                        <content>
+                            <table:Table
+                                id="tblEmployees"
+                                selectionMode="Single"
+                                selectionBehavior="Row"
+                                rows="{employees>/}"
+                            >
+                                <table:extension>
+                                    <OverflowToolbar>
+                                        <Title text="Employees" />
+                                        <ToolbarSpacer />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://add"
+                                            tooltip="Add Employee"
+                                        />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://edit"
+                                            tooltip="Edit Employee"
+                                        />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://delete"
+                                            tooltip="Delete Employee"
+                                        />
+                                    </OverflowToolbar>
+                                </table:extension>
+
+                                <table:columns>
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Employee ID" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{employees>employeeID}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="First Name" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{employees>firstName}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Last Name" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text text="{employees>lastName}" />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Country Code" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{employees>countryCode}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Date of Birth" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{employees>dateOfBirth}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Department ID" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{employees>departmentID}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                        </content>
+                    </IconTabFilter>
+
+                    <IconTabFilter
+                        key="Departments"
+                        text="Departments"
+                    >
+                        <content>
+                            <Text text="Departments" />
+                        </content>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
         </content>
     </Page>
 </mvc:View>
