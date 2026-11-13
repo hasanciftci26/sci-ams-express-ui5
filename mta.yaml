@@ -6,7 +6,7 @@ description: "SAP Cloud Identity Services AMS Express.js Sample Application"
 # ──────────────────────────────────────────────────────────── Build Parameters ────────────────────────────────────────────────────────────
 
 parameters:
-  #deploy_mode: html5-repo
+  deploy_mode: html5-repo
   enable-parallel-deployments: true
 build-parameters:
   before-all:
@@ -19,7 +19,7 @@ build-parameters:
 modules:
 
 # ──────────────────── SAP Cloud Identity Services AMS Policies Deployer Module ────────────────────
-  - name: express-ams-policies-deployer
+  - name: sci-ams-express-policies-deployer
     type: nodejs
     path: ams-policies-deployer
     parameters:
@@ -45,17 +45,80 @@ modules:
         - dcn/
 
 # ─────────────────────────────────── Express.js Backend Module ────────────────────────────────────
-  - name: express-service
+  - name: sci-ams-express-service
     type: nodejs
     path: service/dist
+    requires:
+      - name: sci-ams-express-destination
+      - name: sci-ams-express-ui5-ias
+        parameters:
+          config:
+            credential-type: X509_GENERATED    
     parameters:
       buildpack: nodejs_buildpack
-      memory: 256M
-      disk-quota: 256M
+      memory: 512M
+      disk-quota: 512M
     provides:
-      - name: backend-api
+      - name: express-api
         properties:
-          backend-url: ${default-url}
+          express-url: ${default-url}
+    deployed-after: 
+      - sci-ams-express-policies-deployer
+
+# ────────────────────────────────────── SAP AppRouter Module ──────────────────────────────────────
+  - name: sci-ams-express-approuter
+    type: approuter.nodejs
+    path: approuter
+    requires:
+      - name: sci-ams-express-destination
+      - name: sci-ams-express-html5-runtime
+      - name: sci-ams-express-ui5-ias
+        parameters:
+          config:
+            credential-type: X509_GENERATED
+      - name: express-api
+        group: destinations
+        properties:
+          name: express-api
+          url: "~{express-url}"
+          forwardAuthToken: true
+    parameters:
+      disk-quota: 256M
+      memory: 256M    
+      keep-existing-routes: true
+    properties:
+      SESSION_TIMEOUT: 30
+      INCOMING_CONNECTION_TIMEOUT: 0
+      npm_config_cache: .npmcache
+      npm_config_prefer_offline: true
+
+# ────────────────────────────────────────── HTML5 Module ──────────────────────────────────────────
+  - name: sci-ams-express-html5
+    type: html5
+    path: ui
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:prod
+      supported-platforms: []
+
+# ─────────────────────────────────────── UI Deployer Module ───────────────────────────────────────
+  - name: sci-ams-express-ui-deployer
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: sci-ams-express-html5-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: html5-build-result
+      requires:
+        - name: sci-ams-express-html5
+          target-path: html5-build-result/
+          artifacts:
+            - sci-ams-express-ui.zip
 
 # ─────────────────────────────────────────────────────────────── Resources ────────────────────────────────────────────────────────────────
 
@@ -69,3 +132,41 @@ resources:
       service-name: sci-ams-express-ui5-ias
       service-plan: application
       path: ./ias-config.json
+
+# ────────────────────────────────────── Destination Service ───────────────────────────────────────
+  - name: sci-ams-express-destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      config:
+        HTML5Runtime_enabled: false
+        init_data:
+          instance:
+            destinations:
+              - Name: express-api
+                Type: HTTP
+                Authentication: NoAuthentication
+                ProxyType: Internet
+                URL: ~{express-api/express-url}
+                Description: Express.js Backend Service Destination
+                HTML5.DynamicDestination: true
+                HTML5.Timeout: 300000
+                HTML5.ForwardAuthToken: true
+            existing_destinations_policy: update
+      service: destination
+      service-plan: lite
+    requires:
+      - name: express-api
+
+# ───────────────────────────────── HTML5 Repository Host Service ──────────────────────────────────
+  - name: sci-ams-express-html5-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+
+# ──────────────────────────────── HTML5 Repository Runtime Service ────────────────────────────────
+  - name: sci-ams-express-html5-runtime
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-runtime

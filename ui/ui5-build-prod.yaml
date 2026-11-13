@@ -20,7 +20,7 @@ builder:
     - name: ui5-task-zipper
       afterTask: generateCachebusterInfo
       configuration:
-        archiveName: sciamsexpress
+        archiveName: sci-ams-express-ui
         additionalFiles:
           - xs-app.json
     - name: ui5-tooling-transpile-task
