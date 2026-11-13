@@ -1,0 +1,16 @@
+<mvc:View
+    controllerName="sci.ams.express.controller.Homepage"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+>
+    <Page
+        id="Homepage"
+        showHeader="false"
+    >
+        <content>
+            <Text text="SCI AMS Express UI Application" />
+        </content>
+    </Page>
+</mvc:View>

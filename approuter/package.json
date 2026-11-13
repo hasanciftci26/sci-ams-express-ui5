@@ -1,0 +1,17 @@
+{
+    "name": "approuter",
+    "version": "0.0.1",
+    "description": "SAP Standalone AppRouter",
+    "private": true,
+    "scripts": {
+        "start": "node node_modules/@sap/approuter/approuter.js",
+        "start:local": "npm run build-ui && node --env-file=.env node_modules/@sap/html5-repo-mock/index.js",
+        "build-ui": "npm --prefix ../ui run build:prod"
+    },
+    "dependencies": {
+        "@sap/approuter": "^23.4.0"
+    },
+    "devDependencies": {
+        "@sap/html5-repo-mock": "2.1.10"
+    }
+}

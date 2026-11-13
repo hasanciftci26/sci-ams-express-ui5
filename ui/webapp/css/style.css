@@ -1,0 +1,5 @@
+/* Custom Styles */
+
+.customMessageBox .sapMDialogScrollCont>span {
+    line-height: 1.6 !important;
+}

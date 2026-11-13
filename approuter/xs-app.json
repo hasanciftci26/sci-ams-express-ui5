@@ -1,0 +1,11 @@
+{
+    "authenticationMethod": "route",
+    "welcomeFile": "/sciamsexpress",
+    "routes": [
+        {
+            "source": "^/ams/api/v1/(.*)$",
+            "destination": "express-api",
+            "authenticationType": "ias"
+        }
+    ]
+}

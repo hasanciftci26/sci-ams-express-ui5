@@ -39,8 +39,8 @@ export default class App {
     }
 
     private configureRouters() {
-        this.app.use("/employee", this.employeeRouter.router);
-        this.app.use("/department", this.departmentRouter.router);
+        this.app.use(this.employeeRouter.path, this.employeeRouter.router);
+        this.app.use(this.departmentRouter.path, this.departmentRouter.router);
     }
 
     /**

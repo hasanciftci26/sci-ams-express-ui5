@@ -8,7 +8,7 @@ export default class EmployeeRouter extends RouterBase {
     private readonly handler: EmployeeHandler;
 
     constructor(db: Database) {
-        super(db);
+        super(db, "/employee");
 
         this.handler = new EmployeeHandler(db);
         this.configureRoutes();

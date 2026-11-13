@@ -8,7 +8,7 @@ export default class DepartmentRouter extends RouterBase {
     private readonly handler: DepartmentHandler;
 
     constructor(db: Database) {
-        super(db);
+        super(db, "/department");
 
         this.handler = new DepartmentHandler(db);
         this.configureRoutes();

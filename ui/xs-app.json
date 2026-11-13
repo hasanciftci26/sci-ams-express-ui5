@@ -1,0 +1,18 @@
+{
+    "welcomeFile": "/index.html",
+    "authenticationMethod": "route",
+    "routes": [
+        {
+            "source": "^/ams/api/v1/(.*)$",
+            "destination": "express-api",
+            "authenticationType": "ias"
+        },
+        {
+            "source": "^(.*)$",
+            "target": "$1",
+            "service": "html5-apps-repo-rt",
+            "authenticationType": "ias",
+            "cacheControl": "no-cache"
+        }
+    ]
+}

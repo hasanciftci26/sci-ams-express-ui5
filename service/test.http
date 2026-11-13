@@ -1,6 +1,6 @@
 @host = localhost
 @port = 3456
-@baseUrl = http://{{host}}:{{port}}
+@baseUrl = http://{{host}}:{{port}}/ams/api/v1
 @username = admin
 @password = admin
 
