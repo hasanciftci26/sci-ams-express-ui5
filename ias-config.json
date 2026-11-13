@@ -3,5 +3,13 @@
         "enabled": true,
         "value-help-url": "",
         "value-help-api-name": ""
+    },
+    "oauth2-configuration": {
+        "redirect-uris": [
+            "https://*sci-ams-express-approuter.cfapps.us10-001.hana.ondemand.com/login/callback?authType=ias"
+        ],
+        "post-logout-redirect-uris": [
+            "https://*sci-ams-express-approuter.cfapps.us10-001.hana.ondemand.com/**"
+        ]
     }
 }

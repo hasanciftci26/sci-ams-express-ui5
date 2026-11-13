@@ -83,7 +83,7 @@ export default abstract class BaseController extends Controller {
     }
 
     public showError(message?: string) {
-        MessageBox.error(message ?? this.getText("global.error.unexpected"), {
+        MessageBox.error(message ?? this.getText("unexpectedError"), {
             contentWidth: "20%",
             styleClass: "customMessageBox"
         });
