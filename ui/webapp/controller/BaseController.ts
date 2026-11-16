@@ -9,6 +9,7 @@ import Route, { Route$PatternMatchedEvent } from "sap/ui/core/routing/Route";
 import ResourceModel from "sap/ui/model/resource/ResourceModel";
 import JSONModelManager from "sci/ams/express/model/JSONModelManager";
 import Formatter from "sci/ams/express/model/Formatter";
+import FragmentManager from "sci/ams/express/lib/core/FragmentManager";
 
 /**
  * @namespace sci.ams.express.controller
@@ -20,6 +21,7 @@ export default abstract class BaseController extends Controller {
 
     public readonly formatter = Formatter;
     public readonly json = new JSONModelManager();
+    public readonly fragment = new FragmentManager(this);
 
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Utility Methods

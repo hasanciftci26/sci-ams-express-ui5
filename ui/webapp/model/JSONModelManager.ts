@@ -45,18 +45,38 @@ export default class JSONModelManager extends BaseObject {
     }
 
     public createModel(modelName: string, data?: string | object, bindingMode: DefaultBindingMode = "TwoWay") {
-        const model = new JSONModel(data);
+        const oldModel = this.container.find(cont => cont.name === modelName)?.model;
 
-        this.container.push({
-            name: modelName,
-            model: model
-        });
+        if (oldModel) {
+            if (typeof data === "string") {
+                oldModel.loadData(data);
+            } else {
+                oldModel.setData(data || {});
+            }
 
-        model.setDefaultBindingMode(bindingMode);
-        return model;
+            oldModel.setDefaultBindingMode(bindingMode);
+            return oldModel;
+        } else {
+            const model = new JSONModel(data);
+
+            this.container.push({
+                name: modelName,
+                model: model
+            });
+
+            model.setDefaultBindingMode(bindingMode);
+            return model;
+        }
     }
 
     public createAndSetModel(target: ManagedObject, modelName: string, data?: string | object, bindingMode?: DefaultBindingMode) {
-        target.setModel(this.createModel(modelName, data, bindingMode), modelName);
+        const model = this.createModel(modelName, data, bindingMode);
+        const oldModel = target.getModel(modelName);
+
+        if (model !== oldModel) {
+            target.setModel(model, modelName);
+        }
+
+        return model;
     }
 }

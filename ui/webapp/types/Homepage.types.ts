@@ -6,3 +6,8 @@ export type Employee = {
     dateOfBirth: string;
     departmentID: string;
 };
+
+export type Department = {
+    departmentID: string;
+    name: string;
+};

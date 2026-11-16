@@ -18,10 +18,19 @@
                         text="Employees"
                     >
                         <content>
+                            <MessageStrip
+                                id="msgEmployeeNoAuth"
+                                type="Error"
+                                visible="false"
+                                showIcon="true"
+                                showCloseButton="false"
+                                class="sapUiSmallMarginBottom"
+                            />
                             <table:Table
                                 id="tblEmployees"
                                 selectionMode="Single"
                                 selectionBehavior="Row"
+                                busyIndicatorDelay="0"
                                 rows="{employees>/}"
                             >
                                 <table:extension>
@@ -30,7 +39,8 @@
                                         <ToolbarSpacer />
                                         <OverflowToolbarButton
                                             icon="sap-icon://add"
-                                            tooltip="Add Employee"
+                                            tooltip="New Employee"
+                                            press="onNewEmployee"
                                         />
                                         <OverflowToolbarButton
                                             icon="sap-icon://edit"
@@ -117,7 +127,63 @@
                         text="Departments"
                     >
                         <content>
-                            <Text text="Departments" />
+                            <MessageStrip
+                                id="msgDepartmentNoAuth"
+                                type="Error"
+                                visible="false"
+                                showIcon="true"
+                                showCloseButton="false"
+                                class="sapUiSmallMarginBottom"
+                            />                        
+                            <table:Table
+                                id="tblDepartments"
+                                selectionMode="Single"
+                                selectionBehavior="Row"
+                                busyIndicatorDelay="0"
+                                rows="{departments>/}"
+                            >
+                                <table:extension>
+                                    <OverflowToolbar>
+                                        <Title text="Departments" />
+                                        <ToolbarSpacer />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://add"
+                                            tooltip="New Department"
+                                            press="onNewDepartment"
+                                        />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://edit"
+                                            tooltip="Edit Department"
+                                        />
+                                        <OverflowToolbarButton
+                                            icon="sap-icon://delete"
+                                            tooltip="Delete Department"
+                                        />
+                                    </OverflowToolbar>
+                                </table:extension>
+
+                                <table:columns>
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Department ID" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text
+                                                text="{departments>departmentID}"
+                                            />
+                                        </table:template>
+                                    </table:Column>
+
+                                    <table:Column>
+                                        <table:label>
+                                            <Label text="Name" />
+                                        </table:label>
+                                        <table:template>
+                                            <Text text="{departments>name}" />
+                                        </table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
                         </content>
                     </IconTabFilter>
                 </items>
