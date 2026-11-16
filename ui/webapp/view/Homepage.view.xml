@@ -102,7 +102,14 @@
                                         </table:label>
                                         <table:template>
                                             <Text
-                                                text="{employees>dateOfBirth}"
+                                                text="{
+                                                    path: 'employees>dateOfBirth',
+                                                    type: 'sap.ui.model.odata.type.Date',
+                                                    formatOptions: {
+                                                        pattern: 'dd MMMM y',
+                                                        style: 'medium'
+                                                    }
+                                                }"
                                             />
                                         </table:template>
                                     </table:Column>
@@ -134,7 +141,7 @@
                                 showIcon="true"
                                 showCloseButton="false"
                                 class="sapUiSmallMarginBottom"
-                            />                        
+                            />
                             <table:Table
                                 id="tblDepartments"
                                 selectionMode="Single"
