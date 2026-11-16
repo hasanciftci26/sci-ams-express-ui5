@@ -1,6 +1,7 @@
 import MessageStrip from "sap/m/MessageStrip";
 import BusyIndicator from "sap/ui/core/BusyIndicator";
 import SimpleForm from "sap/ui/layout/form/SimpleForm";
+import Context from "sap/ui/model/Context";
 import Table from "sap/ui/table/Table";
 import BaseController from "sci/ams/express/controller/BaseController";
 import HttpClient from "sci/ams/express/lib/core/HttpClient";
@@ -16,6 +17,8 @@ export default class Homepage extends BaseController {
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Properties
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+    private initialEmployeeData: Employee;
 
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Lifecycle Methods
@@ -114,6 +117,59 @@ export default class Homepage extends BaseController {
         }
     }
 
+    public onEditEmployee() {
+        const employee = this.getSelectedEmployeeData();
+
+        if (!employee) {
+            this.showError("Please select an employee record on the table.");
+            return;
+        }
+
+        this.initialEmployeeData = { ...employee };
+        this.createEmployeeModel({ ...employee });
+        this.fragment.openDialog("homepage.employee.EditEmployee");
+    }
+
+    public async onCompleteEditEmployee() {
+        const data = this.json.getModelData<Employee>("employee");
+        const { employeeID, ...current } = data;
+        const { employeeID: _, ...initial } = this.initialEmployeeData;
+
+        const payload = this.getChanges(initial, current);
+
+        if (!Object.keys(payload).length) {
+            this.showError("No changes were made.");
+            return;
+        }
+
+        const hasError = await SimpleFormValidator.hasError(this.getById<SimpleForm>("sfEditEmployee"));
+
+        if (hasError) {
+            this.showError("Please correct the highlighted fields.");
+            return;
+        }
+
+        BusyIndicator.show(0);
+
+        try {
+            const http = new HttpClient();
+
+            await http.patch<Employee, Partial<Omit<Employee, "employeeID">>>(`/employee/${employeeID}`, payload);
+
+            this.fragment.closeDialog();
+            this.loadEmployees();
+        } catch (error) {
+            if (error instanceof HttpError && error.status === 403) {
+                this.showError("You are not authorized to update an employee.");
+                return;
+            }
+
+            this.showError((error as Error).message);
+        } finally {
+            BusyIndicator.hide();
+        }
+    }
+
     public onCloseDialog() {
         this.fragment.closeDialog();
     }
@@ -178,11 +234,34 @@ export default class Homepage extends BaseController {
         }
     }
 
+    private getSelectedEmployeeData() {
+        const table = this.getById<Table>("tblEmployees");
+        const selectedIndices = table.getSelectedIndices();
+
+        if (!selectedIndices.length) {
+            return;
+        }
+
+        return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as Employee;
+    }
+
     private createEmployeeModel(data: Nullable<Employee>) {
         this.json.createAndSetModel(this.getCurrentView(), "employee", data);
     }
 
     private createDepartmentModel(data: Nullable<Department>) {
         this.json.createAndSetModel(this.getCurrentView(), "department", data);
+    }
+
+    private getChanges<T extends object>(initial: T, current: T): Partial<T> {
+        return Object.keys(current).reduce<Partial<T>>((changes, key) => {
+            const property = key as keyof T;
+
+            if (initial[property] !== current[property]) {
+                changes[property] = current[property];
+            }
+
+            return changes;
+        }, {});
     }
 }

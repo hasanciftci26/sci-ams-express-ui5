@@ -45,6 +45,7 @@
                                         <OverflowToolbarButton
                                             icon="sap-icon://edit"
                                             tooltip="Edit Employee"
+                                            press="onEditEmployee"
                                         />
                                         <OverflowToolbarButton
                                             icon="sap-icon://delete"
