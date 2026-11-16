@@ -19,6 +19,7 @@ export default class Homepage extends BaseController {
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     private initialEmployeeData: Employee;
+    private initialDepartmentData: Department;
 
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Lifecycle Methods
@@ -170,6 +171,59 @@ export default class Homepage extends BaseController {
         }
     }
 
+    public onEditDepartment() {
+        const department = this.getSelectedDepartmentData();
+
+        if (!department) {
+            this.showError("Please select a department record on the table.");
+            return;
+        }
+
+        this.initialDepartmentData = { ...department };
+        this.createDepartmentModel({ ...department });
+        this.fragment.openDialog("homepage.department.EditDepartment");
+    }
+
+    public async onCompleteEditDepartment() {
+        const data = this.json.getModelData<Department>("department");
+        const { departmentID, ...current } = data;
+        const { departmentID: _, ...initial } = this.initialDepartmentData;
+
+        const payload = this.getChanges(initial, current);
+
+        if (!Object.keys(payload).length) {
+            this.showError("No changes were made.");
+            return;
+        }
+
+        const hasError = await SimpleFormValidator.hasError(this.getById<SimpleForm>("sfEditDepartment"));
+
+        if (hasError) {
+            this.showError("Please correct the highlighted fields.");
+            return;
+        }
+
+        BusyIndicator.show(0);
+
+        try {
+            const http = new HttpClient();
+
+            await http.patch<Department, Partial<Omit<Department, "departmentID">>>(`/department/${departmentID}`, payload);
+
+            this.fragment.closeDialog();
+            this.loadDepartments();
+        } catch (error) {
+            if (error instanceof HttpError && error.status === 403) {
+                this.showError("You are not authorized to update a department.");
+                return;
+            }
+
+            this.showError((error as Error).message);
+        } finally {
+            BusyIndicator.hide();
+        }
+    }    
+
     public onCloseDialog() {
         this.fragment.closeDialog();
     }
@@ -244,6 +298,17 @@ export default class Homepage extends BaseController {
 
         return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as Employee;
     }
+
+    private getSelectedDepartmentData() {
+        const table = this.getById<Table>("tblDepartments");
+        const selectedIndices = table.getSelectedIndices();
+
+        if (!selectedIndices.length) {
+            return;
+        }
+
+        return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as Department;
+    }    
 
     private createEmployeeModel(data: Nullable<Employee>) {
         this.json.createAndSetModel(this.getCurrentView(), "employee", data);

@@ -1,0 +1,62 @@
+<core:FragmentDefinition
+    xmlns:layout="sap.ui.layout"
+    xmlns="sap.m"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        title="Edit Department"
+        escapeHandler=".onDialogESC"
+    >
+        <content>
+            <form:SimpleForm
+                id="sfEditDepartment"
+                editable="true"
+                layout="ResponsiveGridLayout"
+                columnsXL="1"
+                columnsL="1"
+                columnsM="1"
+                adjustLabelSpan="false"
+                labelSpanXL="4"
+                labelSpanL="4"
+                labelSpanM="12"
+                labelSpanS="12"
+                emptySpanXL="4"
+                emptySpanL="4"
+                emptySpanM="0"
+                emptySpanS="0"
+            >
+                <Label text="Department ID" />
+                <Text text="{department>/departmentID}" />
+
+                <Label text="Name" />
+                <Input
+                    required="true"
+                    value="{
+                        path: 'department>/name',
+                        type: 'sap.ui.model.odata.type.String',
+                        constraints: {
+                            maxLength: 100,
+                            nullable: false
+                        }
+                    }"
+                />
+            </form:SimpleForm>
+        </content>
+
+        <beginButton>
+            <Button
+                text="Save"
+                type="Emphasized"
+                press="onCompleteEditDepartment"
+            />
+        </beginButton>
+
+        <endButton>
+            <Button
+                text="Cancel"
+                press="onCloseDialog"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

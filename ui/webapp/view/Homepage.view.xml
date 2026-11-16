@@ -162,6 +162,7 @@
                                         <OverflowToolbarButton
                                             icon="sap-icon://edit"
                                             tooltip="Edit Department"
+                                            press="onEditDepartment"
                                         />
                                         <OverflowToolbarButton
                                             icon="sap-icon://delete"
