@@ -17,7 +17,7 @@ export default class Component extends UIComponent {
         this.getRouter().initialize();
 
         Mobile.setIcons({
-            favicon: "img/app_favicon.ico"
+            favicon: "img/app_favicon.svg"
         });        
     }
 }
