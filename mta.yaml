@@ -53,15 +53,26 @@ modules:
       - name: sci-ams-express-ui5-ias
         parameters:
           config:
-            credential-type: X509_GENERATED    
+            credential-type: X509_GENERATED
+            app-identifier: express-service
     parameters:
+      routes:
+        # Normal route
+        - route: "${default-url}"
+
+        # mTLS route
+        - route: "${default-host}.cert.${default-domain}"
       buildpack: nodejs_buildpack
       memory: 512M
       disk-quota: 512M
     provides:
       - name: express-api
         properties:
+          # Normal URL
           express-url: ${default-url}
+
+          # mTLS URL
+          express-cert-url: "https://${default-host}.cert.${default-domain}"
     deployed-after: 
       - sci-ams-express-policies-deployer
 
@@ -76,12 +87,14 @@ modules:
         parameters:
           config:
             credential-type: X509_GENERATED
+            app-identifier: approuter
       - name: express-api
         group: destinations
         properties:
           name: express-api
-          url: "~{express-url}"
+          url: "~{express-cert-url}"
           forwardAuthToken: true
+          forwardAuthCertificates: true
     parameters:
       disk-quota: 256M
       memory: 256M    
@@ -146,11 +159,12 @@ resources:
                 Type: HTTP
                 Authentication: NoAuthentication
                 ProxyType: Internet
-                URL: ~{express-api/express-url}
+                URL: ~{express-api/express-cert-url}
                 Description: Express.js Backend Service Destination
                 HTML5.DynamicDestination: true
                 HTML5.Timeout: 300000
                 HTML5.ForwardAuthToken: true
+                HTML5.ForwardAuthCertificates: true
             existing_destinations_policy: update
       service: destination
       service-plan: lite
