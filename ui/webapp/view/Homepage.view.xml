@@ -1,4 +1,5 @@
 <mvc:View
+    xmlns:rowmodes="sap.ui.table.rowmodes"
     xmlns:table="sap.ui.table"
     controllerName="sci.ams.express.controller.Homepage"
     displayBlock="true"
@@ -50,6 +51,7 @@
                                         <OverflowToolbarButton
                                             icon="sap-icon://delete"
                                             tooltip="Delete Employee"
+                                            press="onDeleteEmployee"
                                         />
                                     </OverflowToolbar>
                                 </table:extension>
@@ -126,6 +128,10 @@
                                         </table:template>
                                     </table:Column>
                                 </table:columns>
+
+                                <table:rowMode>
+                                    <rowmodes:Interactive rowCount="20" />
+                                </table:rowMode>
                             </table:Table>
                         </content>
                     </IconTabFilter>
@@ -167,6 +173,7 @@
                                         <OverflowToolbarButton
                                             icon="sap-icon://delete"
                                             tooltip="Delete Department"
+                                            press="onDeleteDepartment"
                                         />
                                     </OverflowToolbar>
                                 </table:extension>
@@ -192,6 +199,10 @@
                                         </table:template>
                                     </table:Column>
                                 </table:columns>
+
+                                <table:rowMode>
+                                    <rowmodes:Interactive rowCount="20" />
+                                </table:rowMode>
                             </table:Table>
                         </content>
                     </IconTabFilter>

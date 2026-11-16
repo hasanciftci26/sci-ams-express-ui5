@@ -222,7 +222,67 @@ export default class Homepage extends BaseController {
         } finally {
             BusyIndicator.hide();
         }
-    }    
+    }
+
+    public onDeleteEmployee() {
+        const employee = this.getSelectedEmployeeData();
+
+        if (!employee) {
+            this.showError("Please select an employee record on the table.");
+            return;
+        }
+
+        this.showConfirm("The selected employee will be permanently deleted. Would you like to continue?", async () => {
+            BusyIndicator.show(0);
+
+            try {
+                const http = new HttpClient();
+
+                await http.delete(`/employee/${employee.employeeID}`);
+
+                this.loadEmployees();
+            } catch (error) {
+                if (error instanceof HttpError && error.status === 403) {
+                    this.showError("You are not authorized to delete an employee.");
+                    return;
+                }
+
+                this.showError((error as Error).message);
+            } finally {
+                BusyIndicator.hide();
+            }
+        });
+    }
+
+    public onDeleteDepartment() {
+        const department = this.getSelectedDepartmentData();
+
+        if (!department) {
+            this.showError("Please select a department record on the table.");
+            return;
+        }
+
+        this.showConfirm("The selected department will be permanently deleted. Would you like to continue?", async () => {
+            BusyIndicator.show(0);
+
+            try {
+                const http = new HttpClient();
+
+                await http.delete(`/department/${department.departmentID}`);
+
+                this.loadDepartments();
+            } catch (error) {
+                if (error instanceof HttpError && error.status === 403) {
+                    this.showError("You are not authorized to delete a department.");
+                    return;
+                }
+
+                this.showError((error as Error).message);
+            } finally {
+                BusyIndicator.hide();
+            }
+        });
+    }
 
     public onCloseDialog() {
         this.fragment.closeDialog();
@@ -308,7 +368,7 @@ export default class Homepage extends BaseController {
         }
 
         return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as Department;
-    }    
+    }
 
     private createEmployeeModel(data: Nullable<Employee>) {
         this.json.createAndSetModel(this.getCurrentView(), "employee", data);
