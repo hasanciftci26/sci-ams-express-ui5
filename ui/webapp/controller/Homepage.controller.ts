@@ -31,6 +31,7 @@ export default class Homepage extends BaseController {
     private employeeAddressFragment: FragmentManager;
     private selectedEmployeeID: string;
     private selectedEmployeeName: string;
+    private initialEmployeeAddressData: EmployeeAddressFinalData;
 
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Lifecycle Methods
@@ -362,6 +363,66 @@ export default class Homepage extends BaseController {
         }
     }
 
+    public onEditEmployeeAddress() {
+        const employeeAddress = this.getSelectedEmployeeAddressData();
+
+        if (!employeeAddress) {
+            this.showError("Please select an employee address record on the table.");
+            return;
+        }
+
+        const initialAddressData = {
+            employeeName: this.selectedEmployeeName,
+            ...employeeAddress
+        };
+
+        this.initialEmployeeAddressData = initialAddressData;
+        this.createEmployeeAddressModel({ ...initialAddressData });
+        this.employeeAddressFragment.openDialog("homepage.employee.EditEmployeeAddress");
+    }
+
+    public async onCompleteEditEmployeeAddress() {
+        const data = this.json.getModelData<EmployeeAddressFinalData>("employeeAddress");
+        const { employeeID, employeeName, addressID, ...current } = data;
+        const { employeeID: _employeeID, employeeName: _employeeName, addressID: _addressID, ...initial } = this.initialEmployeeAddressData;
+
+        const payload = this.getChanges(initial, current);
+
+        if (!Object.keys(payload).length) {
+            this.showError("No changes were made.");
+            return;
+        }
+
+        const hasError = await SimpleFormValidator.hasError(this.getById<SimpleForm>("sfEditEmployeeAddress"));
+
+        if (hasError) {
+            this.showError("Please correct the highlighted fields.");
+            return;
+        }
+
+        BusyIndicator.show(0);
+
+        try {
+            const http = new HttpClient();
+
+            await http.patch<EmployeeAddress, Partial<Omit<EmployeeAddress, "employeeID" | "addressID">>>(
+                `/employee/${employeeID}/address/${addressID}`, payload
+            );
+
+            this.employeeAddressFragment.closeDialog();
+            this.loadEmployeeAddresses();
+        } catch (error) {
+            if (error instanceof HttpError && error.status === 403) {
+                this.showError("You are not authorized to update an employee address.");
+                return;
+            }
+
+            this.showError((error as Error).message);
+        } finally {
+            BusyIndicator.hide();
+        }
+    }
+
     public onDeleteEmployeeAddress() {
         const employeeAddress = this.getSelectedEmployeeAddressData();
 
@@ -390,7 +451,7 @@ export default class Homepage extends BaseController {
                 BusyIndicator.hide();
             }
         });
-    }    
+    }
 
     public onCloseDialog() {
         this.fragment.closeDialog();
@@ -522,7 +583,7 @@ export default class Homepage extends BaseController {
         }
 
         return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as EmployeeAddress;
-    }    
+    }
 
     private createEmployeeModel(data: Nullable<Employee>) {
         this.json.createAndSetModel(this.getCurrentView(), "employee", data);
