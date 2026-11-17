@@ -362,6 +362,36 @@ export default class Homepage extends BaseController {
         }
     }
 
+    public onDeleteEmployeeAddress() {
+        const employeeAddress = this.getSelectedEmployeeAddressData();
+
+        if (!employeeAddress) {
+            this.showError("Please select an employee address record on the table.");
+            return;
+        }
+
+        this.showConfirm("The selected employee address will be permanently deleted. Would you like to continue?", async () => {
+            BusyIndicator.show(0);
+
+            try {
+                const http = new HttpClient();
+
+                await http.delete(`/employee/${this.selectedEmployeeID}/address/${employeeAddress.addressID}`);
+
+                this.loadEmployeeAddresses();
+            } catch (error) {
+                if (error instanceof HttpError && error.status === 403) {
+                    this.showError("You are not authorized to delete an employee address.");
+                    return;
+                }
+
+                this.showError((error as Error).message);
+            } finally {
+                BusyIndicator.hide();
+            }
+        });
+    }    
+
     public onCloseDialog() {
         this.fragment.closeDialog();
     }
@@ -482,6 +512,17 @@ export default class Homepage extends BaseController {
 
         return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as Department;
     }
+
+    private getSelectedEmployeeAddressData() {
+        const table = this.getById<Table>("tblEmployeeAddresses");
+        const selectedIndices = table.getSelectedIndices();
+
+        if (!selectedIndices.length) {
+            return;
+        }
+
+        return (table.getContextByIndex(selectedIndices[0] as number) as Context).getObject() as EmployeeAddress;
+    }    
 
     private createEmployeeModel(data: Nullable<Employee>) {
         this.json.createAndSetModel(this.getCurrentView(), "employee", data);
