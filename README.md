@@ -470,6 +470,87 @@ Start application runtime modules
 The exact module definitions, service plans, bindings, and deployment
 tasks are defined in `mta.yaml`.
 
+## Deployment to SAP BTP Cloud Foundry
+
+The application is ready to be deployed to a Cloud Foundry environment
+in an SAP BTP subaccount using the Multi-Target Application deployment
+model.
+
+### Prerequisites
+
+Before deploying the application, ensure that the following
+prerequisites are met:
+
+1.  **SAP BTP Subaccount with Cloud Foundry enabled**
+
+    A Cloud Foundry environment must be activated in the target SAP BTP
+    subaccount, and a target organization and space must be available.
+
+2.  **Required SAP BTP services are entitled and available**
+
+    The SAP BTP subaccount must provide the services required by the
+    application, including:
+
+    -   SAP Cloud Identity Services
+    -   SAP Authorization Management Service (AMS)
+    -   SAP HTML5 Application Repository
+    -   SAP Destination service
+
+    The exact service instances, service plans, and bindings required by
+    the application are defined in `mta.yaml`.
+
+3.  **Cloud MTA Build Tool (MBT)**
+
+    The `mbt` npm package must be installed to build the Multi-Target
+    Application archive.
+
+    ``` bash
+    npm install -g mbt
+    ```
+
+4.  **Cloud Foundry CLI with MultiApps plugin**
+
+    The Cloud Foundry CLI must be installed and configured with the
+    MultiApps plugin, which provides the `cf deploy` command used to
+    deploy MTAR archives.
+
+### Deployment
+
+First, log in to the target SAP BTP Cloud Foundry environment and select
+the organization and space where the application should be deployed:
+
+``` bash
+cf login
+```
+
+Build the Multi-Target Application from the project root:
+
+``` bash
+mbt build
+```
+
+The generated MTAR archive is written to:
+
+``` text
+mta_archives/
+```
+
+Deploy the generated archive to the currently targeted Cloud Foundry
+space:
+
+``` bash
+cf deploy mta_archives/<mtar_file_name>.mtar
+```
+
+The deployment process uses `mta.yaml` to create or update the required
+SAP BTP service instances, establish service bindings, deploy the
+application modules, upload the SAPUI5 application to the HTML5
+Application Repository, and execute the configured AMS policy deployment
+task.
+
+After a successful deployment, the application can be accessed through
+the route assigned to the standalone Application Router.
+
 ## Technology Stack
 
 -   SAPUI5
