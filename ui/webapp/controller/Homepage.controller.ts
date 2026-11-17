@@ -4,11 +4,19 @@ import SimpleForm from "sap/ui/layout/form/SimpleForm";
 import Context from "sap/ui/model/Context";
 import Table from "sap/ui/table/Table";
 import BaseController from "sci/ams/express/controller/BaseController";
+import FragmentManager from "sci/ams/express/lib/core/FragmentManager";
 import HttpClient from "sci/ams/express/lib/core/HttpClient";
 import HttpError from "sci/ams/express/lib/core/HttpError";
 import SimpleFormValidator from "sci/ams/express/lib/core/SimpleFormValidator";
 import { Nullable } from "sci/ams/express/types/Global.types";
-import { Department, Employee } from "sci/ams/express/types/Homepage.types";
+import {
+    Department,
+    Employee,
+    EmployeeAddress,
+    EmployeeAddressCreate,
+    EmployeeAddressFinalData,
+    EmployeeAddressInitialData
+} from "sci/ams/express/types/Homepage.types";
 
 /**
  * @namespace sci.ams.express.controller
@@ -20,12 +28,16 @@ export default class Homepage extends BaseController {
 
     private initialEmployeeData: Employee;
     private initialDepartmentData: Department;
+    private employeeAddressFragment: FragmentManager;
+    private selectedEmployeeID: string;
+    private selectedEmployeeName: string;
 
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Lifecycle Methods
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     public override onInit() {
+        this.employeeAddressFragment = new FragmentManager(this);
         this.loadEmployees();
         this.loadDepartments();
     }
@@ -284,6 +296,72 @@ export default class Homepage extends BaseController {
         });
     }
 
+    public onDisplayEmployeeAddresses() {
+        const employee = this.getSelectedEmployeeData();
+
+        if (!employee) {
+            this.showError("Please select an employee record on the table.");
+            return;
+        }
+
+        const dialogTitle = `${employee.firstName} ${employee.lastName}'s Addresses`;
+        this.selectedEmployeeID = employee.employeeID;
+        this.selectedEmployeeName = `${employee.firstName} ${employee.lastName}`;
+
+        this.fragment.openDialog("homepage.employee.DisplayEmployeeAddresses").then((dialog) => {
+            dialog.setTitle(dialogTitle);
+            this.loadEmployeeAddresses();
+        });
+    }
+
+    public onNewEmployeeAddress() {
+        this.createEmployeeAddressModel({
+            employeeID: this.selectedEmployeeID,
+            employeeName: this.selectedEmployeeName,
+            addressID: null,
+            countryCode: null,
+            city: null,
+            postalCode: null,
+            street: null,
+            houseNumber: null,
+            additionalAddressLine: null
+        });
+
+        this.employeeAddressFragment.openDialog("homepage.employee.NewEmployeeAddress");
+    }
+
+    public async onCreateNewEmployeeAddress() {
+        const hasError = await SimpleFormValidator.hasError(this.getById<SimpleForm>("sfNewEmployeeAddress"));
+
+        if (hasError) {
+            this.showError("Please correct the highlighted fields.");
+            return;
+        }
+
+        BusyIndicator.show(0);
+
+        const data = this.json.getModelData<EmployeeAddressFinalData>("employeeAddress");
+
+        try {
+            const http = new HttpClient();
+            const { employeeID, employeeName, ...payload } = data;
+
+            await http.post<EmployeeAddress, EmployeeAddressCreate>(`/employee/${this.selectedEmployeeID}/address`, payload);
+
+            this.employeeAddressFragment.closeDialog();
+            this.loadEmployeeAddresses();
+        } catch (error) {
+            if (error instanceof HttpError && error.status === 403) {
+                this.showError("You are not authorized to create an employee address.");
+                return;
+            }
+
+            this.showError((error as Error).message);
+        } finally {
+            BusyIndicator.hide();
+        }
+    }
+
     public onCloseDialog() {
         this.fragment.closeDialog();
     }
@@ -293,13 +371,22 @@ export default class Homepage extends BaseController {
         this.fragment.closeDialog();
     }
 
+    public onCloseAddressDialog() {
+        this.employeeAddressFragment.closeDialog();
+    }
+
+    public onAddressDialogESC(event: { resolve: Function; reject: Function; }) {
+        event.reject();
+        this.employeeAddressFragment.closeDialog();
+    }
+
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
     // Internal Methods
     // ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     private async loadEmployees() {
         const table = this.getById<Table>("tblEmployees");
-        const messageStrip = this.getById<MessageStrip>("msgEmployeeNoAuth");
+        const messageStrip = this.getById<MessageStrip>("msgEmployeeError");
 
         table.setBusy(true);
 
@@ -324,7 +411,7 @@ export default class Homepage extends BaseController {
 
     private async loadDepartments() {
         const table = this.getById<Table>("tblDepartments");
-        const messageStrip = this.getById<MessageStrip>("msgDepartmentNoAuth");
+        const messageStrip = this.getById<MessageStrip>("msgDepartmentError");
 
         table.setBusy(true);
 
@@ -339,6 +426,32 @@ export default class Homepage extends BaseController {
 
             if (error instanceof HttpError && error.status === 403) {
                 messageStrip.setText("You are not authorized to display departments.");
+                return;
+            }
+
+            messageStrip.setText((error as Error).message);
+        } finally {
+            table.setBusy(false);
+        }
+    }
+
+    private async loadEmployeeAddresses() {
+        const table = this.getById<Table>("tblEmployeeAddresses");
+        const messageStrip = this.getById<MessageStrip>("msgEmployeeAddressError");
+
+        this.json.createAndSetModel(this.getCurrentView(), "employeeAddresses", []);
+        table.setBusy(true);
+
+        try {
+            const http = new HttpClient();
+            const employeeAddresses = await http.get<EmployeeAddress[]>(`/employee/${this.selectedEmployeeID}/address`);
+
+            this.json.setModelData("employeeAddresses", employeeAddresses);
+        } catch (error) {
+            messageStrip.setVisible(true);
+
+            if (error instanceof HttpError && error.status === 403) {
+                messageStrip.setText("You are not authorized to display employee addresses.");
                 return;
             }
 
@@ -376,6 +489,10 @@ export default class Homepage extends BaseController {
 
     private createDepartmentModel(data: Nullable<Department>) {
         this.json.createAndSetModel(this.getCurrentView(), "department", data);
+    }
+
+    private createEmployeeAddressModel(data: EmployeeAddressInitialData) {
+        this.json.createAndSetModel(this.getCurrentView(), "employeeAddress", data);
     }
 
     private getChanges<T extends object>(initial: T, current: T): Partial<T> {

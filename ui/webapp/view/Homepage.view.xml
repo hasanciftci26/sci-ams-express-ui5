@@ -20,7 +20,7 @@
                     >
                         <content>
                             <MessageStrip
-                                id="msgEmployeeNoAuth"
+                                id="msgEmployeeError"
                                 type="Error"
                                 visible="false"
                                 showIcon="true"
@@ -52,6 +52,10 @@
                                             icon="sap-icon://delete"
                                             tooltip="Delete Employee"
                                             press="onDeleteEmployee"
+                                        />
+                                        <Button
+                                            text="Display Addresses"
+                                            press="onDisplayEmployeeAddresses"
                                         />
                                     </OverflowToolbar>
                                 </table:extension>
@@ -142,7 +146,7 @@
                     >
                         <content>
                             <MessageStrip
-                                id="msgDepartmentNoAuth"
+                                id="msgDepartmentError"
                                 type="Error"
                                 visible="false"
                                 showIcon="true"

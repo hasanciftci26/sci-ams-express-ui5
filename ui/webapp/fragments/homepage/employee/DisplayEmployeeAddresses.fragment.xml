@@ -1,0 +1,140 @@
+<core:FragmentDefinition
+    xmlns:rowmodes="sap.ui.table.rowmodes"
+    xmlns:table="sap.ui.table"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        escapeHandler=".onDialogESC"
+        titleAlignment="Center"
+        contentWidth="85%"
+    >
+        <content>
+            <MessageStrip
+                id="msgEmployeeAddressError"
+                type="Error"
+                visible="false"
+                showIcon="true"
+                showCloseButton="false"
+                class="sapUiSmallMargin"
+            />
+            <table:Table
+                id="tblEmployeeAddresses"
+                selectionMode="Single"
+                selectionBehavior="Row"
+                busyIndicatorDelay="0"
+                class="sapUiSmallMargin"
+                rows="{employeeAddresses>/}"
+            >
+                <table:extension>
+                    <OverflowToolbar>
+                        <Title text="Employee Addresses" />
+                        <ToolbarSpacer />
+                        <OverflowToolbarButton
+                            icon="sap-icon://add"
+                            tooltip="New Employee Address"
+                            press="onNewEmployeeAddress"
+                        />
+                        <OverflowToolbarButton
+                            icon="sap-icon://edit"
+                            tooltip="Edit Employee Address"
+                            press="onEditEmployeeAddress"
+                        />
+                        <OverflowToolbarButton
+                            icon="sap-icon://delete"
+                            tooltip="Delete Employee Address"
+                            press="onDeleteEmployeeAddress"
+                        />
+                    </OverflowToolbar>
+                </table:extension>
+
+                <table:columns>
+                    <table:Column>
+                        <table:label>
+                            <Label text="Employee ID" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>employeeID}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column width="20%">
+                        <table:label>
+                            <Label text="Address ID" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>addressID}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="Country Code" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>countryCode}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="City" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>city}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="Postal Code" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>postalCode}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="Street" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>street}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="House Number" />
+                        </table:label>
+                        <table:template>
+                            <Text text="{employeeAddresses>houseNumber}" />
+                        </table:template>
+                    </table:Column>
+
+                    <table:Column>
+                        <table:label>
+                            <Label text="Additional Address Line" />
+                        </table:label>
+                        <table:template>
+                            <Text
+                                text="{employeeAddresses>additionalAddressLine}"
+                            />
+                        </table:template>
+                    </table:Column>
+                </table:columns>
+
+                <table:rowMode>
+                    <rowmodes:Fixed rowCount="10" />
+                </table:rowMode>
+            </table:Table>
+        </content>
+
+        <endButton>
+            <Button
+                text="Close"
+                press="onCloseDialog"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
